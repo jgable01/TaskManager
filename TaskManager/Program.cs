@@ -1,7 +1,15 @@
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.SqlServer;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddDbContext<TaskManagerContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("TaskManagerDb")));
 
 var app = builder.Build();
 
