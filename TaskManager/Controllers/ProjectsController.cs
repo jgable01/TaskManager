@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using TaskManager.Areas.Identity.Data;
 using TaskManager.Models;
 
 namespace TaskManager.Controllers
@@ -12,10 +15,12 @@ namespace TaskManager.Controllers
     public class ProjectsController : Controller
     {
         private readonly TaskManagerContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public ProjectsController(TaskManagerContext context)
+        public ProjectsController(TaskManagerContext context, UserManager<User> usermanager)
         {
             _context = context;
+            _userManager = usermanager;
         }
 
         // GET: Projects
@@ -58,7 +63,11 @@ namespace TaskManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ProjectId,Title,ManagerId")] Project project)
         {
-            if (ModelState.IsValid)
+            Project? Project = project;
+            Project.Manager = await _userManager.Users.FirstOrDefaultAsync(m => m.Id == project.ManagerId);
+            ModelState.Clear();
+
+            if (TryValidateModel(nameof(Project)))
             {
                 _context.Add(project);
                 await _context.SaveChangesAsync();
@@ -156,7 +165,7 @@ namespace TaskManager.Controllers
             }
             
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", "Projects");
         }
 
         private bool ProjectExists(int id)

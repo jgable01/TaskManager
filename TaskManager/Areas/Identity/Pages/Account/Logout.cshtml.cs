@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using TaskManager.Areas.Identity.Data;
 
 namespace TaskManager.Areas.Identity.Pages.Account
-{
+{ 
     public class LogoutModel : PageModel
     {
         private readonly SignInManager<User> _signInManager;

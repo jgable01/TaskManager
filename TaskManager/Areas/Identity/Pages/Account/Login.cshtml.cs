@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Identity.UI.Services; 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
@@ -19,7 +19,7 @@ using TaskManager.Areas.Identity.Data;
 namespace TaskManager.Areas.Identity.Pages.Account
 {
     public class LoginModel : PageModel
-    {
+    { 
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger<LoginModel> _logger;
 
