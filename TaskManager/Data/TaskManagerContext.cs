@@ -20,7 +20,7 @@ public class TaskManagerContext : IdentityDbContext<User>
             .HasOne(pd => pd.Project)
             .WithMany(p => p.ProjectDevelopers)
             .HasForeignKey(pd => pd.ProjectId)
-            .OnDelete(DeleteBehavior.Restrict); 
+            .OnDelete(DeleteBehavior.Restrict); // Change here
 
         // Relationship between User and ProjectDeveloper
         builder.Entity<ProjectDeveloper>()
