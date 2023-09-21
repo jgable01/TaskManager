@@ -1,6 +1,10 @@
-﻿public enum Role
+﻿namespace TaskManager.Models
 {
-    Developer,
-    ProjectManager,
-    Administrator
+    public enum Role
+    {
+        Developer,
+        ProjectManager,
+        Administrator
+    }
+
 }

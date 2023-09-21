@@ -1,6 +1,9 @@
-﻿public enum Priority
+﻿namespace TaskManager.Models
 {
-    High,
-    Medium,
-    Low
+    public enum Priority
+    {
+        Low,
+        Medium,
+        High
+    }
 }

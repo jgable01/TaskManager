@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using TaskManager.Areas.Identity.Data;
+using TaskManager.Models;
+using Task = TaskManager.Models.Task;
 
 public class TaskManagerContext : IdentityDbContext<User>
 {
@@ -21,13 +24,6 @@ public class TaskManagerContext : IdentityDbContext<User>
             .WithMany(p => p.ProjectDevelopers)
             .HasForeignKey(pd => pd.ProjectId)
             .OnDelete(DeleteBehavior.Restrict); // Change here
-
-        // Relationship between User and ProjectDeveloper
-        builder.Entity<ProjectDeveloper>()
-            .HasOne(pd => pd.User)
-            .WithMany(u => u.ProjectDevelopers)
-            .HasForeignKey(pd => pd.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
 
         // Relationship between Project and its Manager (User)
         builder.Entity<Project>()
