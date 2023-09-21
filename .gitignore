@@ -361,3 +361,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/TaskManager/Views/Projects/Create.cshtml
+/TaskManager/Views/Projects/Details.cshtml
+/TaskManager/Views/Projects/Index.cshtml
+/TaskManager/Controllers/ProjectsController.cs
