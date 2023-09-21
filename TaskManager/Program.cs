@@ -14,7 +14,10 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<TaskManagerContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("TaskManagerDb")));
 
-builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<TaskManagerContext>();
+builder.Services.AddIdentity<User, IdentityRole>()
+    .AddEntityFrameworkStores<TaskManagerContext>()
+    .AddDefaultTokenProviders();
+
 
 var app = builder.Build();
 
@@ -37,4 +40,8 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+DataSeeder.SeedInitialData(app.Services);
+
 app.Run();
+
+
