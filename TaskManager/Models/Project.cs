@@ -11,7 +11,7 @@ namespace TaskManager.Models
         [Required]
         [StringLength(200)]
         public string Title { get; set; }
-
+        [Display(Name = "Manager")]
         public string ManagerId { get; set; }
         public virtual User Manager { get; set; }
 

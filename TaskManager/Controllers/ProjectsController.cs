@@ -52,7 +52,7 @@ namespace TaskManager.Controllers
         // GET: Projects/Create
         public IActionResult Create()
         {
-            ViewData["ManagerId"] = new SelectList(_context.Users, "Id", "Id");
+            ViewData["ManagerId"] = new SelectList(_context.Users, "Id", "FullName");
             return View();
         }
 
@@ -73,7 +73,7 @@ namespace TaskManager.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ManagerId"] = new SelectList(_context.Users, "Id", "Id", project.ManagerId);
+            ViewData["ManagerId"] = new SelectList(_context.Users, "Id", "FullName");
             return View(project);
         }
 
@@ -126,7 +126,7 @@ namespace TaskManager.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ManagerId"] = new SelectList(_context.Users, "Id", "Id", project.ManagerId);
+            ViewData["ManagerId"] = new SelectList(_context.Users, "Id", "FullName", project.ManagerId);
             return View(project);
         }
 
