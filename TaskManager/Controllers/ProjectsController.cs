@@ -56,27 +56,44 @@ namespace TaskManager.Controllers
         {
             var projectManagers = await _userManager.GetUsersInRoleAsync("ProjectManager");
             ViewData["ManagerId"] = new SelectList(projectManagers, "Id", "FullName");
+            // Load users who are Developers to populate the allocation list
+            var developers = await _userManager.GetUsersInRoleAsync("Developer");
+            ViewData[DeveloperId] = new MultiSelectList(developers, "Id", "FullName");
+
             return View();
         }
 
 
         // POST: Projects/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProjectId,Title,ManagerId")] Project project)
+        public async Task<IActionResult> Create([Bind("Title,ManagerId")] Project project, List<string> AllocatedDeveloperIds)
         {
-            Project? Project = project;
-            Project.Manager = await _userManager.Users.FirstOrDefaultAsync(m => m.Id == project.ManagerId);
-            ModelState.Clear();
-
-            if (TryValidateModel(nameof(Project)))
+            if (ModelState.IsValid)
             {
+                // Retrieve the manager and allocated developers
+                project.Manager = await _userManager.FindByIdAsync(project.ManagerId);
+                var allocatedDevelopers = await _userManager.Users.Where(u => AllocatedDeveloperIds.Contains(u.Id)).ToListAsync();
+
+                // Ensure that the manager is also allocated
+                if (!allocatedDevelopers.Contains(project.Manager))
+                {
+                    allocatedDevelopers.Add(project.Manager);
+                }
+
+                // Assign allocated developers to the project
+                foreach (var developer in allocatedDevelopers)
+                {
+                    project.ProjectDevelopers.Add(new ProjectDeveloper { Project = project, User = developer });
+                }
+
                 _context.Add(project);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
+            // If the model is not valid, reload the ManagerId dropdown and return to the Create view
+            ViewData["ManagerId"] = new SelectList(_context.Users, "Id", "FullName");
             return View(project);
         }
 
