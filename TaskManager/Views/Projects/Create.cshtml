@@ -1,5 +1,29 @@
 ﻿@model TaskManager.Models.Project
 
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <!--Using select2 plugin for better multiselect-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#AllocatedDeveloperIds').select2({
+                placeholder: "Select developers",
+                allowClear: true
+            });
+        });
+    </script>
+}
+
+
+
 <h2>Create Project</h2>
 
 <form asp-action="Create">
@@ -15,17 +39,12 @@
     </div>
     <div class="form-group">
         <label for="AllocatedDeveloperIds">Allocated Developers</label>
-        <select id="AllocatedDeveloperIds" name="AllocatedDeveloperIds[]" multiple class="form-control">
-            @foreach (var developer in ViewBag.Developers)
-            {
-                <option value="@developer.Value">@developer.Text</option>
-            }
-        </select>
+        <select id="AllocatedDeveloperIds" name="AllocatedDeveloperIds[]" multiple class="form-control" asp-items="ViewBag.Developers"></select>
     </div>
+
     <button type="submit" class="btn btn-primary">Create</button>
 </form>
 
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
-
