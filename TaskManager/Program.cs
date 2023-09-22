@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<TaskManagerContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("TaskManagerdb")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("TaskManagerContext")));
 
 builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()

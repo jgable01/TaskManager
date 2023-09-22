@@ -15,13 +15,22 @@
     </div>
     <div class="form-group">
         <label for="AllocatedDeveloperIds">Allocated Developers</label>
-        <select id="AllocatedDeveloperIds" name="AllocatedDeveloperIds[]" multiple class="form-control">
-            @foreach (var developer in ViewBag.Developers)
-            {
-                <option value="@developer.Value">@developer.Text</option>
-            }
-        </select>
+        @if (ViewBag.Developers != null)
+        {
+            <select id="AllocatedDeveloperIds" name="AllocatedDeveloperIds[]" multiple class="form-control">
+                @foreach (var developer in ViewBag.Developers)
+                {
+                    <option value="@developer.Value">@developer.Text</option>
+                }
+            </select>
+        }
+        else
+        {
+            <p>No developers available.</p>
+        }
     </div>
+
+
     <button type="submit" class="btn btn-primary">Create</button>
 </form>
 

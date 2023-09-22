@@ -56,9 +56,13 @@ namespace TaskManager.Controllers
             var developers = await _userManager.GetUsersInRoleAsync("Developer");
             ViewBag.Developers = new MultiSelectList(developers, "Id", "FullName");
 
-            ViewData["ManagerId"] = new SelectList(_context.Users, "Id", "FullName");
+            // Load users who are Managers to populate the ManagerId dropdown
+            var managers = await _userManager.GetUsersInRoleAsync("ProjectManager");
+            ViewData["ManagerId"] = new SelectList(managers, "Id", "FullName");
+
             return View();
         }
+
 
 
         // POST: Projects/Create
