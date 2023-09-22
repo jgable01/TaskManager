@@ -1,5 +1,29 @@
 ﻿@model TaskManager.Models.Project
 
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <!--Using select2 plugin for better multiselect-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#AllocatedDeveloperIds').select2({
+                placeholder: "Select developers",
+                allowClear: true
+            });
+        });
+    </script>
+}
+
+
+
 <h2>Create Project</h2>
 
 <form asp-action="Create">
