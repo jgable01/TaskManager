@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 #nullable disable
 
 namespace TaskManager.Migrations
-{ 
+{
     [DbContext(typeof(TaskManagerContext))]
     partial class TaskManagerContextModelSnapshot : ModelSnapshot
     {

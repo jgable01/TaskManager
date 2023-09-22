@@ -14,7 +14,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<TaskManagerContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("TaskManagerContext")));
 
-builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<TaskManagerContext>();
+builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<TaskManagerContext>();
 
 var app = builder.Build();
 

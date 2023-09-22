@@ -12,13 +12,16 @@ namespace TaskManager.Areas.Identity.Data
     {
         public static async System.Threading.Tasks.Task SeedInitialData(IServiceProvider serviceProvider)
         {
-
             try
             {
                 using var scope = serviceProvider.CreateScope();
                 var context = scope.ServiceProvider.GetRequiredService<TaskManagerContext>();
-                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
 
+                //context.Database.EnsureDeleted(); // Enable these to generate seed data
+                //context.Database.Migrate();
+
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+                
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
                 if (!roleManager.RoleExistsAsync("Administrator").Result)
@@ -33,8 +36,8 @@ namespace TaskManager.Areas.Identity.Data
                 {
                     await roleManager.CreateAsync(new IdentityRole("Developer"));
                 }
+                
                 Console.WriteLine("Checking if users exist...");
-
 
                 // Check if any users exist
                 if (!context.Users.Any())
@@ -63,7 +66,6 @@ namespace TaskManager.Areas.Identity.Data
                     var developer3 = new User { UserName = "dev3@example.com", FullName = "Developer 3", Email = "dev3@example.com" };
                     await userManager.CreateAsync(developer3, "Dev3@123");
                     await userManager.AddToRoleAsync(developer3, "Developer");
-                    
 
                     // Seed Projects
                     var project1 = new Project { Title = "Company Website", Manager = projectManager1 };
@@ -94,7 +96,7 @@ namespace TaskManager.Areas.Identity.Data
                     Console.WriteLine($"Total added entities: {addedEntities.Count}");
 
 
-                    context.SaveChanges();
+                    await context.SaveChangesAsync();
                 }
             }
             catch (Exception e)
