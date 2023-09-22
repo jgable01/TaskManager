@@ -1,37 +1,31 @@
 ﻿@model TaskManager.Models.Project
 
-@{
-    ViewData["Title"] = "Create";
-}
+<h2>Create Project</h2>
 
-<h1>Create</h1>
-
-<h4>Project</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div> 
-            <div class="form-group">
-                <label asp-for="ManagerId" class="control-label"></label>
-                <select asp-for="ManagerId" class="form-control" asp-items="ViewBag.ManagerId"></select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+<form asp-action="Create">
+    <div class="form-group">
+        <label asp-for="Title" class="control-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
     </div>
-</div>
+    <div class="form-group">
+        <label asp-for="ManagerId" class="control-label"></label>
+        <select asp-for="ManagerId" class="form-control" asp-items="ViewBag.Managers"></select>
+        <span asp-validation-for="ManagerId" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label for="AllocatedDeveloperIds">Allocated Developers</label>
+        <select id="AllocatedDeveloperIds" name="AllocatedDeveloperIds[]" multiple class="form-control">
+            @foreach (var developer in ViewBag.Developers)
+            {
+                <option value="@developer.Value">@developer.Text</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>
 
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
