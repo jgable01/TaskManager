@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using TaskManager.Areas.Identity.Data; 
+using TaskManager.Areas.Identity.Data;
 using TaskManager.Models;
 
 namespace TaskManager.Controllers
@@ -56,9 +56,9 @@ namespace TaskManager.Controllers
         {
             var projectManagers = await _userManager.GetUsersInRoleAsync("ProjectManager");
             ViewData["ManagerId"] = new SelectList(projectManagers, "Id", "FullName");
-            // Load users who are Developers to populate the allocation list
+
             var developers = await _userManager.GetUsersInRoleAsync("Developer");
-            ViewData[DeveloperId] = new MultiSelectList(developers, "Id", "FullName");
+            ViewData["DeveloperId"] = new SelectList(developers, "Id", "FullName");
 
             return View();
         }
@@ -67,33 +67,33 @@ namespace TaskManager.Controllers
         // POST: Projects/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Title,ManagerId")] Project project, List<string> AllocatedDeveloperIds)
+        public async Task<IActionResult> Create([Bind("ProjectId,Title,ManagerId")] Project project, string[] AllocatedDeveloperIds)
         {
+            // Retrieve the manager and allocated developers
+            project.Manager = await _userManager.FindByIdAsync(project.ManagerId);
+            var allocatedDevelopers = await _userManager.Users.Where(u => AllocatedDeveloperIds.Contains(u.Id)).ToListAsync();
+
+            // Assign allocated developers to the project
+            foreach (var developer in allocatedDevelopers)
+            {
+                project.ProjectDevelopers.Add(new ProjectDeveloper { Project = project, User = developer });
+            }
+            if (!ModelState.IsValid)
+            {
+                var projectManagers = await _userManager.GetUsersInRoleAsync("ProjectManager");
+                ViewData["ManagerId"] = new SelectList(projectManagers, "Id", "FullName");
+
+                var developers = await _userManager.GetUsersInRoleAsync("Developer");
+                ViewData["DeveloperId"] = new SelectList(developers, "Id", "FullName");
+            }
             if (ModelState.IsValid)
             {
-                // Retrieve the manager and allocated developers
-                project.Manager = await _userManager.FindByIdAsync(project.ManagerId);
-                var allocatedDevelopers = await _userManager.Users.Where(u => AllocatedDeveloperIds.Contains(u.Id)).ToListAsync();
-
-                // Ensure that the manager is also allocated
-                if (!allocatedDevelopers.Contains(project.Manager))
-                {
-                    allocatedDevelopers.Add(project.Manager);
-                }
-
-                // Assign allocated developers to the project
-                foreach (var developer in allocatedDevelopers)
-                {
-                    project.ProjectDevelopers.Add(new ProjectDeveloper { Project = project, User = developer });
-                }
-
                 _context.Add(project);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
 
-            // If the model is not valid, reload the ManagerId dropdown and return to the Create view
-            ViewData["ManagerId"] = new SelectList(_context.Users, "Id", "FullName");
+
             return View(project);
         }
 
@@ -192,14 +192,14 @@ namespace TaskManager.Controllers
             {
                 _context.Projects.Remove(project);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction("Index", "Projects");
         }
 
         private bool ProjectExists(int id)
         {
-          return (_context.Projects?.Any(e => e.ProjectId == id)).GetValueOrDefault();
+            return (_context.Projects?.Any(e => e.ProjectId == id)).GetValueOrDefault();
         }
     }
 }
