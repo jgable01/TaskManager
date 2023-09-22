@@ -88,8 +88,11 @@ namespace TaskManager.Controllers
                     project.ProjectDevelopers.Add(new ProjectDeveloper { Project = project, User = developer });
                 }
 
+                // Add the project to the context and save changes
                 _context.Add(project);
                 await _context.SaveChangesAsync();
+
+                // Redirect to the index page after successfully creating the project
                 return RedirectToAction(nameof(Index));
             }
 
@@ -97,6 +100,7 @@ namespace TaskManager.Controllers
             ViewData["ManagerId"] = new SelectList(_context.Users, "Id", "FullName");
             return View(project);
         }
+
 
         // GET: Projects/Edit/5
         public async Task<IActionResult> Edit(int? id)
