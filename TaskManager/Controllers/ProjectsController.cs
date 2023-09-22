@@ -52,11 +52,13 @@ namespace TaskManager.Controllers
         }
 
         // GET: Projects/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["ManagerId"] = new SelectList(_context.Users, "Id", "FullName");
+            var projectManagers = await _userManager.GetUsersInRoleAsync("ProjectManager");
+            ViewData["ManagerId"] = new SelectList(projectManagers, "Id", "FullName");
             return View();
         }
+
 
         // POST: Projects/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -75,14 +77,13 @@ namespace TaskManager.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ManagerId"] = new SelectList(_context.Users, "Id", "FullName");
             return View(project);
         }
 
         // GET: Projects/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Projects == null)
+            if (id == null)
             {
                 return NotFound();
             }
@@ -92,13 +93,16 @@ namespace TaskManager.Controllers
             {
                 return NotFound();
             }
-            ViewData["ManagerId"] = new SelectList(_context.Users, "Id", "Id", project.ManagerId);
+
+            // Get the list of users with the role "ProjectManager"
+            var projectManagers = await _userManager.GetUsersInRoleAsync("ProjectManager");
+
+            // Populate the ViewData with these users
+            ViewData["ManagerId"] = new SelectList(projectManagers, "Id", "FullName", project.ManagerId);
             return View(project);
         }
 
         // POST: Projects/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ProjectId,Title,ManagerId")] Project project)
@@ -128,9 +132,15 @@ namespace TaskManager.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ManagerId"] = new SelectList(_context.Users, "Id", "FullName", project.ManagerId);
+
+            // If we reach here, it means the model state was not valid.
+            // So, repopulate the dropdown list before returning to the view
+            var projectManagers = await _userManager.GetUsersInRoleAsync("ProjectManager");
+            ViewData["ManagerId"] = new SelectList(projectManagers, "Id", "FullName", project.ManagerId);
+
             return View(project);
         }
+
 
         // GET: Projects/Delete/5
         public async Task<IActionResult> Delete(int? id)
