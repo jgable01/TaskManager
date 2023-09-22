@@ -16,6 +16,9 @@
                 @Html.DisplayNameFor(model => model.Email) 
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.FullName)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Id)
             </th>
             <th></th>
@@ -25,8 +28,20 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                    @Html.DisplayFor(modelItem => item.Email)
+                    @Html.DisplayFor(modelItem => item.Email) 
             </td>
+                @if (item.FullName != null)
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FullName)
+                    </td> 
+                } else
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Email)
+                    </td>
+                }
+                
             <td>
                     @Html.DisplayFor(modelItem => item.Id)
             </td>

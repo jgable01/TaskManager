@@ -15,7 +15,7 @@ namespace TaskManager.Models
         public string ManagerId { get; set; }
         public virtual User Manager { get; set; }
 
-        // Navigation properties
+        // Navigation properties 
         public virtual ICollection<Task> Tasks { get; set; } = new List<Task>();
         public virtual ICollection<ProjectDeveloper> ProjectDevelopers { get; set; } = new List<ProjectDeveloper>();
     }

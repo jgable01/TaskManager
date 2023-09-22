@@ -10,7 +10,7 @@ namespace TaskManager.Models
         [Key]
         public int ProjectDeveloperId { get; set; }
 
-        [ForeignKey("ProjectId")]
+        [ForeignKey("ProjectId")] 
         public int ProjectId { get; set; }
         public Project? Project { get; set; }
 

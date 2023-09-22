@@ -13,7 +13,6 @@ namespace TaskManager.Areas.Identity.Data
         public static async System.Threading.Tasks.Task SeedInitialData(IServiceProvider serviceProvider)
         {
 
-
             try
             {
                 using var scope = serviceProvider.CreateScope();

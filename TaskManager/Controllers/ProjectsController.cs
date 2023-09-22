@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using TaskManager.Areas.Identity.Data;
+using TaskManager.Areas.Identity.Data; 
 using TaskManager.Models;
 
 namespace TaskManager.Controllers

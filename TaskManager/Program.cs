@@ -36,6 +36,8 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+ 
+DataSeeder.SeedInitialData(app.Services);
 
 app.MapRazorPages();
 

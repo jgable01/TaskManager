@@ -9,7 +9,7 @@ public class TaskManagerContext : IdentityDbContext<User>
     public TaskManagerContext(DbContextOptions<TaskManagerContext> options) : base(options)
     {
     }
-
+     
     public DbSet<Project> Projects { get; set; }
     public DbSet<Task> Tasks { get; set; }
     public DbSet<ProjectDeveloper> ProjectDevelopers { get; set; }

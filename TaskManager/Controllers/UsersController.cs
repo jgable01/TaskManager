@@ -6,7 +6,7 @@ using TaskManager.Areas.Identity.Data;
 
 namespace TaskManager.Controllers
 {
-    public class UsersController : Controller
+    public class UsersController : Controller 
     {
         private readonly TaskManagerContext _context;
         private readonly UserManager<User> _userManager;
