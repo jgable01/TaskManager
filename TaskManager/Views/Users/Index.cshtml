@@ -1,0 +1,42 @@
+﻿@model IEnumerable<TaskManager.Areas.Identity.Data.User>
+
+@{
+    ViewData["Title"] = "Users";
+}
+
+<h1>Users [DEBUG ONLY]</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Email) 
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                    @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                <a asp-area="Identity" asp-page="/Account/Register">New Registration [DEBUG ONLY]</a>
+
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+
