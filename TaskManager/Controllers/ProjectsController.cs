@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -12,6 +13,7 @@ using TaskManager.Models;
 
 namespace TaskManager.Controllers
 {
+    [Authorize(Roles = "ProjectManager, Administrator")]
     public class ProjectsController : Controller
     {
         private readonly TaskManagerContext _context;

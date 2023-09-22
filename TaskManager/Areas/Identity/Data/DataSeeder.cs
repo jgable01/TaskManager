@@ -42,28 +42,29 @@ namespace TaskManager.Areas.Identity.Data
                 // Check if any users exist
                 if (!context.Users.Any())
                 {
+
                     // Seed Users
-                    var admin = new User { UserName = "admin@example.com", FullName = "Admin User", Email = "admin@example.com" };
+                    var admin = new User { UserName = "admin@example.com", FullName = "Admin User", Email = "admin@example.com", EmailConfirmed = true };
                     await userManager.CreateAsync(admin, "Admin@123");
                     await userManager.AddToRoleAsync(admin, "Administrator");
 
-                    var projectManager1 = new User { UserName = "pm1@example.com", FullName = "Project Manager 1", Email = "pm1@example.com" };
+                    var projectManager1 = new User { UserName = "pm1@example.com", FullName = "Project Manager 1", Email = "pm1@example.com", EmailConfirmed = true };
                     await userManager.CreateAsync(projectManager1, "Pm1@123");
                     await userManager.AddToRoleAsync(projectManager1, "ProjectManager");
 
-                    var projectManager2 = new User { UserName = "pm2@example.com", FullName = "Project Manager 2", Email = "pm2@example.com" };
+                    var projectManager2 = new User { UserName = "pm2@example.com", FullName = "Project Manager 2", Email = "pm2@example.com", EmailConfirmed = true };
                     await userManager.CreateAsync(projectManager2, "Pm2@123");
                     await userManager.AddToRoleAsync(projectManager2, "ProjectManager");
 
-                    var developer1 = new User { UserName = "dev1@example.com", FullName = "Developer 1", Email = "dev1@example.com" };
+                    var developer1 = new User { UserName = "dev1@example.com", FullName = "Developer 1", Email = "dev1@example.com", EmailConfirmed = true };
                     await userManager.CreateAsync(developer1, "Dev1@123");
                     await userManager.AddToRoleAsync(developer1, "Developer");
 
-                    var developer2 = new User { UserName = "dev2@example.com", FullName = "Developer 2", Email = "dev2@example.com" };
+                    var developer2 = new User { UserName = "dev2@example.com", FullName = "Developer 2", Email = "dev2@example.com", EmailConfirmed = true };
                     await userManager.CreateAsync(developer2, "Dev2@123");
                     await userManager.AddToRoleAsync(developer2, "Developer");
 
-                    var developer3 = new User { UserName = "dev3@example.com", FullName = "Developer 3", Email = "dev3@example.com" };
+                    var developer3 = new User { UserName = "dev3@example.com", FullName = "Developer 3", Email = "dev3@example.com", EmailConfirmed = true };
                     await userManager.CreateAsync(developer3, "Dev3@123");
                     await userManager.AddToRoleAsync(developer3, "Developer");
 
