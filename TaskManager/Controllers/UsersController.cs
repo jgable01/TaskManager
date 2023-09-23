@@ -10,7 +10,7 @@ using TaskManager.ViewModels;
 namespace TaskManager.Controllers
 {
     [Authorize(Roles = "Administrator")]
-    public class UsersController : Controller 
+    public class UsersController : Controller
     {
         private readonly TaskManagerContext _context;
         private readonly UserManager<User> _userManager;
@@ -119,15 +119,10 @@ namespace TaskManager.Controllers
             if (!string.IsNullOrEmpty(model.SelectedRoleName))
             {
                 await _userManager.AddToRoleAsync(user, model.SelectedRoleName);
-            } 
+            }
 
             return RedirectToAction(nameof(Index));
         }
-
-
-
-
-
 
         // GET: UsersController/Details/5
         public ActionResult Details(int id)

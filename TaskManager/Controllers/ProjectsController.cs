@@ -63,7 +63,6 @@ namespace TaskManager.Controllers
             return View();
         }
 
-
         // POST: Projects/Create
         [HttpPost]
         [ValidateAntiForgeryToken]

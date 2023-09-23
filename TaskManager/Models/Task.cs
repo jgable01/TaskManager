@@ -9,7 +9,7 @@ namespace TaskManager.Models
     {
         public int TaskId { get; set; }
 
-        [Required] 
+        [Required]
         [StringLength(200)]
         public string Title { get; set; }
 
