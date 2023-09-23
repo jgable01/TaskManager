@@ -50,12 +50,16 @@ namespace TaskManager.Controllers
 
             return View(project);
         }
-
         // GET: Projects/Create
         public async Task<IActionResult> Create()
         {
-            var projectManagers = await _userManager.GetUsersInRoleAsync("ProjectManager");
-            ViewData["ManagerId"] = new SelectList(projectManagers, "Id", "FullName");
+            var isAdmin = await _userManager.IsInRoleAsync(await _userManager.GetUserAsync(User), "Administrator");
+
+            if (isAdmin)
+            {
+                var projectManagers = await _userManager.GetUsersInRoleAsync("ProjectManager");
+                ViewData["ManagerId"] = new SelectList(projectManagers, "Id", "FullName");
+            }
 
             var developers = await _userManager.GetUsersInRoleAsync("Developer");
             ViewData["DeveloperId"] = new SelectList(developers, "Id", "FullName");
@@ -68,23 +72,15 @@ namespace TaskManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ProjectId,Title,ManagerId")] Project project, string[] AllocatedDeveloperIds)
         {
-            // Retrieve the manager and allocated developers
             project.Manager = await _userManager.FindByIdAsync(project.ManagerId);
+
             var allocatedDevelopers = await _userManager.Users.Where(u => AllocatedDeveloperIds.Contains(u.Id)).ToListAsync();
 
-            // Assign allocated developers to the project
             foreach (var developer in allocatedDevelopers)
             {
                 project.ProjectDevelopers.Add(new ProjectDeveloper { Project = project, User = developer });
             }
-            if (!ModelState.IsValid)
-            {
-                var projectManagers = await _userManager.GetUsersInRoleAsync("ProjectManager");
-                ViewData["ManagerId"] = new SelectList(projectManagers, "Id", "FullName");
 
-                var developers = await _userManager.GetUsersInRoleAsync("Developer");
-                ViewData["DeveloperId"] = new SelectList(developers, "Id", "FullName");
-            }
             if (ModelState.IsValid)
             {
                 _context.Add(project);
@@ -92,9 +88,16 @@ namespace TaskManager.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            var projectManagers = await _userManager.GetUsersInRoleAsync("ProjectManager");
+            ViewData["ManagerId"] = new SelectList(projectManagers, "Id", "FullName");
+
+            var developers = await _userManager.GetUsersInRoleAsync("Developer");
+            ViewData["DeveloperId"] = new SelectList(developers, "Id", "FullName");
 
             return View(project);
         }
+
+
 
         // GET: Projects/Edit/5
         public async Task<IActionResult> Edit(int? id)
