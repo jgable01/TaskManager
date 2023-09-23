@@ -28,7 +28,7 @@ namespace TaskManager.Controllers
         // GET: Projects
         public async Task<IActionResult> Index()
         {
-            var taskManagerContext = _context.Projects.Include(p => p.Manager);
+            var taskManagerContext = _context.Projects.Include(p => p.Manager).OrderBy(p => p.Title); // Order by title alphabetically
             return View(await taskManagerContext.ToListAsync());
         }
 
