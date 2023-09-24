@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using TaskManager.Areas.Identity.Data; 
+using TaskManager.Areas.Identity.Data;
 using TaskManager.Models;
 using TaskManager.Models.ViewModels;
 
@@ -29,7 +29,7 @@ namespace TaskManager.Controllers
         // GET: Projects
         public async Task<IActionResult> Index()
         {
-            var taskManagerContext = _context.Projects.Include(p => p.Manager);
+            var taskManagerContext = _context.Projects.Include(p => p.Manager).OrderBy(p => p.Title); // Order by title alphabetically
             return View(await taskManagerContext.ToListAsync());
         }
 
@@ -51,35 +51,54 @@ namespace TaskManager.Controllers
 
             return View(project);
         }
-
         // GET: Projects/Create
         public async Task<IActionResult> Create()
         {
-            var projectManagers = await _userManager.GetUsersInRoleAsync("ProjectManager");
-            ViewData["ManagerId"] = new SelectList(projectManagers, "Id", "FullName");
+            var isAdmin = await _userManager.IsInRoleAsync(await _userManager.GetUserAsync(User), "Administrator");
+
+            if (isAdmin)
+            {
+                var projectManagers = await _userManager.GetUsersInRoleAsync("ProjectManager");
+                ViewData["ManagerId"] = new SelectList(projectManagers, "Id", "FullName");
+            }
+
+            var developers = await _userManager.GetUsersInRoleAsync("Developer");
+            ViewData["DeveloperId"] = new SelectList(developers, "Id", "FullName");
+
             return View();
         }
 
-
         // POST: Projects/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProjectId,Title,ManagerId")] Project project)
+        public async Task<IActionResult> Create([Bind("ProjectId,Title,ManagerId")] Project project, string[] AllocatedDeveloperIds)
         {
-            Project? Project = project;
-            Project.Manager = await _userManager.Users.FirstOrDefaultAsync(m => m.Id == project.ManagerId);
-            ModelState.Clear();
+            project.Manager = await _userManager.FindByIdAsync(project.ManagerId);
 
-            if (TryValidateModel(nameof(Project)))
+            var allocatedDevelopers = await _userManager.Users.Where(u => AllocatedDeveloperIds.Contains(u.Id)).ToListAsync();
+
+            foreach (var developer in allocatedDevelopers)
+            {
+                project.ProjectDevelopers.Add(new ProjectDeveloper { Project = project, User = developer });
+            }
+
+            if (ModelState.IsValid)
             {
                 _context.Add(project);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
+            var projectManagers = await _userManager.GetUsersInRoleAsync("ProjectManager");
+            ViewData["ManagerId"] = new SelectList(projectManagers, "Id", "FullName");
+
+            var developers = await _userManager.GetUsersInRoleAsync("Developer");
+            ViewData["DeveloperId"] = new SelectList(developers, "Id", "FullName");
+
             return View(project);
         }
+
+
 
         // GET: Projects/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -217,14 +236,14 @@ namespace TaskManager.Controllers
             {
                 _context.Projects.Remove(project);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction("Index", "Projects");
         }
 
         private bool ProjectExists(int id)
         {
-          return (_context.Projects?.Any(e => e.ProjectId == id)).GetValueOrDefault();
+            return (_context.Projects?.Any(e => e.ProjectId == id)).GetValueOrDefault();
         }
     }
 }
