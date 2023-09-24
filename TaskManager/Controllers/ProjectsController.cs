@@ -284,25 +284,46 @@ namespace TaskManager.Controllers
 
 
 
+        // GET: Projects/Delete/5
+        [Authorize(Roles = "ProjectManager, Administrator")]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var project = await _context.Projects.FindAsync(id);
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            return View(project);
+        }
+
         // POST: Projects/Delete/5
         [Authorize(Roles = "ProjectManager, Administrator")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Projects == null)
-            {
-                return Problem("Entity set 'TaskManagerContext.Projects'  is null.");
-            }
             var project = await _context.Projects.FindAsync(id);
+
             if (project != null)
             {
+                // Retrieve and remove the related ProjectDevelopers records
+                var projectDevelopersToDelete = _context.ProjectDevelopers.Where(pd => pd.ProjectId == id);
+                _context.ProjectDevelopers.RemoveRange(projectDevelopersToDelete);
+
+                // Now, you can safely remove the project
                 _context.Projects.Remove(project);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Index", "Projects");
+            return RedirectToAction(nameof(Index));
         }
+
 
         [Authorize(Roles = "ProjectManager, Administrator, Developer")]
         // GET: Projects/Tasks/5
@@ -494,6 +515,41 @@ namespace TaskManager.Controllers
 
             // Redirect to the project's tasks list after marking the task as completed.
             return RedirectToAction("Tasks", new { projectId = taskToMark.ProjectId });
+        }
+
+        // GET: Projects/DeleteTask/5
+        [Authorize(Roles = "ProjectManager, Administrator, Developer")]
+        public async Task<IActionResult> DeleteTask(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var task = await _context.Tasks.FindAsync(id);
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            return View(task);
+        }
+
+        // POST: Projects/DeleteTask/5
+        [Authorize(Roles = "ProjectManager, Administrator, Developer")]
+        [HttpPost, ActionName("DeleteTask")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteTaskConfirmed(int id)
+        {
+            var task = await _context.Tasks.FindAsync(id);
+            if (task != null)
+            {
+                _context.Tasks.Remove(task);
+                await _context.SaveChangesAsync();
+            }
+
+            // Redirect to the project's tasks list after deleting the task.
+            return RedirectToAction("Tasks", new { projectId = task.ProjectId });
         }
 
         private bool ProjectExists(int id)

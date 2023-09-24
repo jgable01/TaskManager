@@ -1,4 +1,5 @@
-﻿@model TaskManager.Models.Project
+﻿
+@model TaskManager.Models.Project
 @using Microsoft.AspNetCore.Identity
 @using TaskManager.Areas.Identity.Data
 @inject UserManager<User> UserManager 
@@ -10,7 +11,6 @@
 }
 
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
 <h2>Create Project</h2>
 
 <form asp-action="Create">
@@ -34,9 +34,15 @@
     }
 
     <div class="form-group">
-        <label for="DeveloperIds">Allocated Developers</label>
-        <select id="DeveloperIds" name="AllocatedDeveloperIds" multiple class="form-control" asp-items="@(ViewData["DeveloperId"] as SelectList)" data-select2-multiple></select>
+        <label for="DeveloperIds">Available Developers</label>
+        <select id="DeveloperIds" name="AvailableDeveloperIds" multiple class="form-control" asp-items="@(ViewData["DeveloperId"] as SelectList)" data-select2-multiple></select>
+    </div>
 
+    <button type="button" id="allocateDevelopersBtn" class="btn btn-primary">Allocate Developers</button>
+
+    <div class="form-group">
+        <label for="AllocatedDevelopers">Allocated Developers</label>
+        <select id="AllocatedDevelopers" name="AllocatedDeveloperIds" multiple class="form-control" data-select2-multiple></select>
     </div>
 
     <button type="submit" class="btn btn-primary">Create</button>
@@ -52,22 +58,36 @@
 
     <script>
         $(document).ready(function () {
-        @if (isAdmin)
-        {
-            <text>
-                    $('#ManagerId').select2({
-                        placeholder: "Select a project manager",
-                        allowClear: true
-                    });
-            </text>
-        }
+            // Initialize the select2 plugin for ManagerId
+            $('#ManagerId').select2({
+                placeholder: "Select a project manager",
+                allowClear: true
+            });
 
-                $('#DeveloperIds').select2({
-                    placeholder: "Select developers",
-                    allowClear: true,
-                    tags: true  // Allows user-defined tags (developers)
-                });
+            // Initialize the select2 plugin for Available Developers
+            $('#DeveloperIds').select2({
+                placeholder: "Select developers",
+                allowClear: true,
+                tags: true  // Allows user-defined tags (developers)
+            });
+
+            // Initialize the select2 plugin for Allocated Developers
+            $('#AllocatedDevelopers').select2({
+                placeholder: "Allocated developers",
+                allowClear: true,
+                tags: true  // Allows user-defined tags (developers)
+            });
+
+            $('#allocateDevelopersBtn').click(function () {
+                // Move selected developers from Available Developers to Allocated Developers
+                var selectedDeveloperIds = $('#DeveloperIds').val();
+                $('#DeveloperIds option:selected').appendTo('#AllocatedDevelopers');
+
+                // Trigger change event for Allocated Developers select to notify Select2
+                $('#AllocatedDevelopers').trigger('change');
+            });
         });
     </script>
 }
+
 
