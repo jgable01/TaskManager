@@ -1,29 +1,41 @@
 ﻿@model TaskManager.Models.Project
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Project Details";
 }
 
-<h1>Details</h1>
+<h1>Project: @Model.Title</h1>
 
-<div>
-    <h4>Project</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Manager)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Manager.Email)
-        </dd>
-    </dl>
+<div class="card mb-3">
+    <div class="card-header">Details</div>
+    <div class="card-body">
+        <h5 class="card-title">@Model.Title</h5>
+        <p class="card-text">Manager: @Model.Manager.Email</p>
+        <p class="card-text">Number of Tasks: @Model.Tasks.Count</p>
+        <p class="card-text">
+            Developers:
+            @foreach (var dev in Model.ProjectDevelopers)
+            {
+                @dev.User.Email
+                ;
+                if (!dev.Equals(Model.ProjectDevelopers.Last()))
+                {
+                    @: ,
+                }
+            }
+        </p>
+        <h6>Tasks:</h6>
+        <ul>
+            @foreach (var task in Model.Tasks)
+            {
+                <li>@task.Title - Priority: @task.Priority</li>
+            }
+        </ul>
+    </div>
 </div>
-<div>
-    <a asp-action="Index">Back to List</a>
+
+<div class="mb-3">
+    <a asp-action="AllocateDevelopers" asp-route-id="@Model.ProjectId" class="btn btn-info">Allocate Developers</a>
+    <a asp-action="Tasks" asp-route-projectId="@Model.ProjectId" class="btn btn-warning">View Tasks</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to Project List</a>
 </div>

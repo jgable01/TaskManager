@@ -1,0 +1,52 @@
+﻿@model IEnumerable<TaskManager.Models.Task>
+
+@{
+    ViewData["Title"] = "Tasks";
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+}
+
+<div class="card">
+    <div class="card-header">
+        Tasks for Project [@ViewData["ProjectTitle"]]
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Developers</th>
+                    <th>Priority</th>
+                    <th>Required Hours</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var task in Model)
+                {
+                    <tr>
+                        <td>@task.Title</td>
+                        <td>@string.Join(", ", task.TaskDevelopers.Select(td => td.Developer.Email))</td>
+                        <td>@task.Priority</td>
+                        <td>@task.RequiredHours</td>
+                        <td>
+                            <a asp-action="EditTask" asp-route-id="@task.TaskId" class="btn btn-warning btn-sm">Edit</a>
+                            <a asp-action="DeleteTask" asp-route-id="@task.TaskId" class="btn btn-danger btn-sm">Delete</a>
+                            @if (!task.IsCompleted)
+                            {
+                                <a asp-action="MarkAsCompleted" asp-route-id="@task.TaskId" class="btn btn-success btn-sm">Complete</a>
+                            }
+                            else
+                            {
+                                <span class="btn btn-secondary btn-sm disabled">Completed</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer">
+        <a asp-action="Details" asp-route-id="@ViewData["ProjectId"]" class="btn btn-info">Back to Project Details</a>
+    </div>
+</div>

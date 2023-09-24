@@ -10,7 +10,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TaskManager.Areas.Identity.Data;
 using TaskManager.Models;
-using TaskManager.Models.ViewModels;
+using TaskManager.ViewModels.TaskVM;
+using Task = TaskManager.Models.Task;
 
 namespace TaskManager.Controllers
 {
@@ -22,15 +23,19 @@ namespace TaskManager.Controllers
 
         public ProjectsController(TaskManagerContext context, UserManager<User> usermanager)
         {
-            _context = context;
-            _userManager = usermanager;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _userManager = usermanager ?? throw new ArgumentNullException(nameof(usermanager));
         }
 
-        // GET: Projects
-        public async Task<IActionResult> Index()
+        private const int PageSize = 10;
+
+        // Modify the Index method to support pagination:
+        public async Task<IActionResult> Index(int page = 1)
         {
-            var taskManagerContext = _context.Projects.Include(p => p.Manager).OrderBy(p => p.Title); // Order by title alphabetically
-            return View(await taskManagerContext.ToListAsync());
+            var projects = await _context.Projects.Include(p => p.Manager).OrderBy(p => p.Title).Skip((page - 1) * PageSize).Take(PageSize).ToListAsync();
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling(_context.Projects.Count() / (double)PageSize);
+            return View(projects);
         }
 
         // GET: Projects/Details/5
@@ -43,7 +48,11 @@ namespace TaskManager.Controllers
 
             var project = await _context.Projects
                 .Include(p => p.Manager)
+                .Include(p => p.Tasks)
+                .Include(p => p.ProjectDevelopers)
+                    .ThenInclude(pd => pd.User)
                 .FirstOrDefaultAsync(m => m.ProjectId == id);
+
             if (project == null)
             {
                 return NotFound();
@@ -51,6 +60,7 @@ namespace TaskManager.Controllers
 
             return View(project);
         }
+
         // GET: Projects/Create
         public async Task<IActionResult> Create()
         {
@@ -161,18 +171,19 @@ namespace TaskManager.Controllers
             return View(project);
         }
 
-        // GET
-
+        // GET: Add Task
         public async Task<IActionResult> AddTask(int? id)
         {
-            if (id == null || _context.Projects == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            Project? project = await _context.Projects
+            // Fetch the project with related data in one call
+            var project = await _context.Projects
                 .Include(p => p.Manager)
                 .Include(pd => pd.ProjectDevelopers)
+                .ThenInclude(pd => pd.User)
                 .FirstOrDefaultAsync(m => m.ProjectId == id);
 
             if (project == null)
@@ -180,47 +191,80 @@ namespace TaskManager.Controllers
                 return NotFound();
             }
 
-            List<ProjectDeveloper> devs = project.ProjectDevelopers.ToList();
-            List<User> devusers = project.ProjectDevelopers
-                    .Select(developer => developer.UserId)
-                    .Join(_userManager.Users, projectId => projectId, user => user.Id, (projectId, user) => user)
-                    .Distinct()  // Ensure unique FullNames
-                    .OrderBy(user => user.Id)  // Sort by Id
-                    .ToList();
+            // Extract distinct developers associated with the project
+            var devusers = project.ProjectDevelopers
+                .Select(pd => pd.User)
+                .DistinctBy(user => user.Id)
+                .OrderBy(user => user.Id)
+                .ToList();
 
-            TaskVM vm = new TaskVM(devusers);
-            vm.Project = project;
-            vm.Task = new Models.Task();
+            TaskVM vm = new TaskVM(devusers)
+            {
+                Task = new Models.Task()
+            };
+
             return View(vm);
         }
 
-        // POST
+        // POST: Add Task to Project
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddTask(int? id, Project project, Models.Task task)
+        public async Task<IActionResult> AddTask(int? id, TaskVM taskVM)
         {
-            task.IsCompleted = false;
+            if (id == null || taskVM == null)
+            {
+                return NotFound();
+            }
+
+            ModelState.Remove("Task.Project"); // Remove the Project property from the ModelState as it is not needed and will cause an error
+            ModelState.Remove("SelectDevs");
+            ModelState.Remove("Task.TaskDevelopers");
+
+            // Check ModelState validity right at the start of the action
+            if (!ModelState.IsValid)
+            {
+                // Repopulate the view model's data and return
+                return View(taskVM);
+            }
+
+            taskVM.Task.Project = await _context.Projects.FindAsync(id);
+            taskVM.Task.IsCompleted = false;
+            taskVM.Task.ProjectId = id.Value;
+
+            // Handle the many-to-many relationship with developers
+            taskVM.Task.TaskDevelopers = new List<TaskDeveloper>();
+            foreach (var devId in taskVM.SelectedDevIds)
+            {
+                taskVM.Task.TaskDevelopers.Add(new TaskDeveloper
+                {
+                    Task = taskVM.Task,
+                    DeveloperId = devId
+                });
+            }
+
+            // Check if the assigned developers are part of the project's developers
+            var projectDevelopersIds = _context.ProjectDevelopers
+                .Where(pd => pd.ProjectId == id.Value)
+                .Select(pd => pd.UserId)
+                .ToList();
+
+            bool isDeveloperMismatch = taskVM.SelectedDevIds.Any(devId => !projectDevelopersIds.Contains(devId));
+            if (isDeveloperMismatch)
+            {
+                ModelState.AddModelError("", "One or more selected developers are not associated with this project.");
+                return View(taskVM);
+            }
+
+            // Add the task to the context
+            _context.Tasks.Add(taskVM.Task);
+
+            // Save changes
+            await _context.SaveChangesAsync();
+
             return RedirectToAction("Index", "Projects");
         }
 
-        // GET: Projects/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || _context.Projects == null)
-            {
-                return NotFound();
-            }
 
-            var project = await _context.Projects
-                .Include(p => p.Manager)
-                .FirstOrDefaultAsync(m => m.ProjectId == id);
-            if (project == null)
-            {
-                return NotFound();
-            }
-
-            return View(project);
-        }
 
         // POST: Projects/Delete/5
         [HttpPost, ActionName("Delete")]
@@ -240,6 +284,32 @@ namespace TaskManager.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction("Index", "Projects");
         }
+
+        // GET: Projects/Tasks/5
+        public async Task<IActionResult> Tasks(int? projectId, int page = 1)
+        {
+            if (projectId == null)
+            {
+                return NotFound();
+            }
+            ViewData["ProjectId"] = projectId;
+            ViewData["ProjectTitle"] = _context.Projects.Find(projectId).Title;
+
+            var tasks = await _context.Tasks.Include(t => t.TaskDevelopers).ThenInclude(td => td.Developer).Where(t => t.ProjectId == projectId).OrderBy(t => t.Title).Skip((page - 1) * PageSize).Take(PageSize).ToListAsync();
+
+            if (tasks == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling(_context.Tasks.Count(t => t.ProjectId == projectId) / (double)PageSize);
+
+            return View(tasks);
+        }
+
+
+
 
         private bool ProjectExists(int id)
         {

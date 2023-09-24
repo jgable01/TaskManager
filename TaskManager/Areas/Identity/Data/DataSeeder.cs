@@ -21,7 +21,7 @@ namespace TaskManager.Areas.Identity.Data
                 //context.Database.Migrate();
 
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
-                
+
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
                 if (!roleManager.RoleExistsAsync("Administrator").Result)
@@ -36,7 +36,7 @@ namespace TaskManager.Areas.Identity.Data
                 {
                     await roleManager.CreateAsync(new IdentityRole("Developer"));
                 }
-                
+
                 Console.WriteLine("Checking if users exist...");
 
                 // Check if any users exist
@@ -76,14 +76,28 @@ namespace TaskManager.Areas.Identity.Data
                     context.Projects.Add(project2);
 
                     // Seed Tasks for Project 1
-                    context.Tasks.Add(new Task { Title = "Fix Main Page Header", Priority = Priority.High, RequiredHours = 10, Project = project1, Developer = developer1 });
-                    context.Tasks.Add(new Task { Title = "Correct About Us Display", Priority = Priority.Medium, RequiredHours = 5, Project = project1, Developer = developer2 });
-                    context.Tasks.Add(new Task { Title = "Update Contact Form", Priority = Priority.Low, RequiredHours = 3, Project = project1, Developer = developer3 });
+
+                    var task1 = new Task { Title = "Fix Main Page Header", Priority = Priority.High, RequiredHours = 10, Project = project1 };
+                    var task2 = new Task { Title = "Correct About Us Display", Priority = Priority.Medium, RequiredHours = 5, Project = project1 };
+                    var task3 = new Task { Title = "Update Contact Form", Priority = Priority.Low, RequiredHours = 3, Project = project1 };
+
+                    context.Tasks.AddRange(task1, task2, task3);
+
+                    context.TaskDevelopers.Add(new TaskDeveloper { Task = task1, Developer = developer1 });
+                    context.TaskDevelopers.Add(new TaskDeveloper { Task = task2, Developer = developer2 });
+                    context.TaskDevelopers.Add(new TaskDeveloper { Task = task3, Developer = developer3 });
 
                     // Seed Tasks for Project 2
-                    context.Tasks.Add(new Task { Title = "Implement Login Feature", Priority = Priority.High, RequiredHours = 20, Project = project2, Developer = developer1 });
-                    context.Tasks.Add(new Task { Title = "Design Home Screen", Priority = Priority.Medium, RequiredHours = 8, Project = project2, Developer = developer2 });
-                    context.Tasks.Add(new Task { Title = "Fix App Crashes", Priority = Priority.Low, RequiredHours = 15, Project = project2, Developer = developer3 });
+
+                    var task4 = new Task { Title = "Implement Login Feature", Priority = Priority.High, RequiredHours = 20, Project = project2 };
+                    var task5 = new Task { Title = "Design Home Screen", Priority = Priority.Medium, RequiredHours = 8, Project = project2 };
+                    var task6 = new Task { Title = "Fix App Crashes", Priority = Priority.Low, RequiredHours = 15, Project = project2 };
+
+                    context.Tasks.AddRange(task4, task5, task6);
+
+                    context.TaskDevelopers.Add(new TaskDeveloper { Task = task4, Developer = developer1 });
+                    context.TaskDevelopers.Add(new TaskDeveloper { Task = task5, Developer = developer2 });
+                    context.TaskDevelopers.Add(new TaskDeveloper { Task = task6, Developer = developer3 });
 
                     // Seed ProjectDeveloper assignments
                     context.ProjectDevelopers.Add(new ProjectDeveloper { Project = project1, User = developer1 });

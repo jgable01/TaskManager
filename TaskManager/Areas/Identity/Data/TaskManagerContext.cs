@@ -9,10 +9,12 @@ public class TaskManagerContext : IdentityDbContext<User>
     public TaskManagerContext(DbContextOptions<TaskManagerContext> options) : base(options)
     {
     }
-     
+
     public DbSet<Project> Projects { get; set; }
     public DbSet<Task> Tasks { get; set; }
     public DbSet<ProjectDeveloper> ProjectDevelopers { get; set; }
+    public DbSet<TaskDeveloper> TaskDevelopers { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -32,13 +34,19 @@ public class TaskManagerContext : IdentityDbContext<User>
             .HasForeignKey(p => p.ManagerId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Relationship between Task and its Developer (User)
-        builder.Entity<Task>()
-            .HasOne(t => t.Developer)
-            .WithMany(u => u.AssignedTasks)
-            .HasForeignKey(t => t.DeveloperId)
-            .OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<TaskDeveloper>()
+         .HasOne(td => td.Task)
+         .WithMany(t => t.TaskDevelopers)
+         .HasForeignKey(td => td.TaskId);
+
+        builder.Entity<TaskDeveloper>()
+            .HasOne(td => td.Developer)
+            .WithMany(u => u.TaskDevelopers)
+            .HasForeignKey(td => td.DeveloperId);
+
+
+
+
+
     }
-
-
 }

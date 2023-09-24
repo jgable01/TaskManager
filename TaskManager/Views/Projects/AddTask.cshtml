@@ -1,48 +1,63 @@
-﻿@model TaskManager.Models.ViewModels.TaskVM
+﻿@model TaskManager.ViewModels.TaskVM.TaskVM
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
-@{
-    ViewData["Title"] = "AddTask";
-}
-
-<h1>AddTask</h1>
-
-<h4>Task for Project: @Html.DisplayFor(model => model.Project.Title)</h4>
+<h1>@ViewData["Title"]</h1>
 <hr />
-<div class="row">
-    <div class="col-md-4">
+
+<div class="card">
+    <div class="card-header">
+        Add Task
+    </div>
+    <div class="card-body">
         <form asp-action="AddTask">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="form-group">
                 <label asp-for="Task.Title" class="control-label"></label>
                 <input asp-for="Task.Title" class="form-control" />
                 <span asp-validation-for="Task.Title" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="Task.RequiredHours" class="control-label"></label>
                 <input asp-for="Task.RequiredHours" class="form-control" />
                 <span asp-validation-for="Task.RequiredHours" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="Priority" class="control-label"></label>
-                <select asp-for="Priority" class="form-control"></select>
+                <select asp-for="Priority" class="form-control" asp-items="@Model.PriorityItems"></select>
                 <span asp-validation-for="Priority" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="Task.Developer" class="control-label"></label>
-                <select asp-for="SelectedDevId" class="form-control" asp-items="@Model.SelectItems"></select>
+                <label asp-for="SelectedDevIds" class="control-label"></label>
+                <select asp-for="SelectedDevIds" class="form-control" asp-items="@Model.SelectDevs" multiple="multiple"></select>
+                <span asp-validation-for="SelectedDevIds" class="text-danger"></span>
             </div>
-            
+
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
+    <div class="card-footer">
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('select').select2({
+                placeholder: function () {
+                    $(this).data('placeholder');
+                },
+                allowClear: true
+            });
+        });
+    </script>
 }

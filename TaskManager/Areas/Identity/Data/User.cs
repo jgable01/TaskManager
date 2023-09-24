@@ -10,5 +10,6 @@ namespace TaskManager.Areas.Identity.Data
         public virtual ICollection<ProjectDeveloper> ProjectDevelopers { get; set; } = new List<ProjectDeveloper>();
         public virtual ICollection<Project> ManagedProjects { get; set; } = new List<Project>();
         public virtual ICollection<Models.Task> AssignedTasks { get; set; } = new List<Models.Task>();
+        public virtual ICollection<TaskDeveloper> TaskDevelopers { get; set; }
     }
 }

@@ -1,48 +1,36 @@
 ﻿@model IEnumerable<TaskManager.Models.Project>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Projects";
 }
 
-<h1>Projects [Remove ID when finished]</h1>
+<h1>Projects</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-primary">Create New Project</a>
+</div>
+
+<table class="table table-striped">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Manager)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Manager.Id)
-            </th>
-
+            <th>@Html.DisplayNameFor(model => model.Title)</th>
+            <th>@Html.DisplayNameFor(model => model.Manager)</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Manager.Email)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Manager.Id)
-            </td>
-            
-            <td>
-                <a asp-action="AddTask" asp-route-id="@item.ProjectId">Add Task</a>
-                <a asp-action="Details" asp-route-id="@item.ProjectId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ProjectId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model.OrderBy(p => p.Title))
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                <td>@Html.DisplayFor(modelItem => item.Manager.Email)</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.ProjectId" class="btn btn-info btn-sm">Details</a>
+                    <a asp-action="Tasks" asp-route-projectId="@item.ProjectId" class="btn btn-warning btn-sm">View Tasks</a>
+                    <a asp-action="AddTask" asp-route-id="@item.ProjectId" class="btn btn-success btn-sm">Add Task</a>
+                    <a asp-action="Delete" asp-route-id="@item.ProjectId" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
