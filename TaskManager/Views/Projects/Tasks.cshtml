@@ -45,6 +45,20 @@
                 }
             </tbody>
         </table>
+        @if (totalPages > 1)
+        {
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    @for (int pageNum = 1; pageNum <= totalPages; pageNum++)
+                    {
+                        <li class="page-item @(pageNum == currentPage ? "active" : "")">
+                            <a class="page-link" asp-action="Tasks" asp-route-projectId="@ViewData["ProjectId"]" asp-route-page="@pageNum">@pageNum</a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        }
+
     </div>
     <div class="card-footer">
         <a asp-action="Details" asp-route-id="@ViewData["ProjectId"]" class="btn btn-info">Back to Project Details</a>

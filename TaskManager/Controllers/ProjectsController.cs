@@ -224,6 +224,19 @@ namespace TaskManager.Controllers
             if (!ModelState.IsValid)
             {
                 // Repopulate the view model's data and return
+                var project = await _context.Projects
+                    .Include(p => p.ProjectDevelopers)
+                    .ThenInclude(pd => pd.User)
+                    .FirstOrDefaultAsync(m => m.ProjectId == id.Value);
+
+                // Extract distinct developers associated with the project
+                var devusers = project.ProjectDevelopers
+                    .Select(pd => pd.User)
+                    .DistinctBy(user => user.Id)
+                    .OrderBy(user => user.Id)
+                    .ToList();
+
+                taskVM.SelectDevs = devusers.Select(d => new SelectListItem { Text = d.FullName, Value = d.Id.ToString() }).ToList();
                 return View(taskVM);
             }
 
