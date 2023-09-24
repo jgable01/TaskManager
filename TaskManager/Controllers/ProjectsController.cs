@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TaskManager.Areas.Identity.Data; 
 using TaskManager.Models;
+using TaskManager.Models.ViewModels;
 
 namespace TaskManager.Controllers
 {
@@ -141,6 +142,47 @@ namespace TaskManager.Controllers
             return View(project);
         }
 
+        // GET
+
+        public async Task<IActionResult> AddTask(int? id)
+        {
+            if (id == null || _context.Projects == null)
+            {
+                return NotFound();
+            }
+
+            Project? project = await _context.Projects
+                .Include(p => p.Manager)
+                .Include(pd => pd.ProjectDevelopers)
+                .FirstOrDefaultAsync(m => m.ProjectId == id);
+
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            List<ProjectDeveloper> devs = project.ProjectDevelopers.ToList();
+            List<User> devusers = project.ProjectDevelopers
+                    .Select(developer => developer.UserId)
+                    .Join(_userManager.Users, projectId => projectId, user => user.Id, (projectId, user) => user)
+                    .Distinct()  // Ensure unique FullNames
+                    .OrderBy(user => user.Id)  // Sort by Id
+                    .ToList();
+
+            TaskVM vm = new TaskVM(devusers);
+            vm.Project = project;
+            vm.Task = new Models.Task();
+            return View(vm);
+        }
+
+        // POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddTask(int? id, Project project, Models.Task task)
+        {
+            task.IsCompleted = false;
+            return RedirectToAction("Index", "Projects");
+        }
 
         // GET: Projects/Delete/5
         public async Task<IActionResult> Delete(int? id)
