@@ -15,7 +15,6 @@ using Task = TaskManager.Models.Task;
 
 namespace TaskManager.Controllers
 {
-    [Authorize(Roles = "ProjectManager, Administrator")]
     public class ProjectsController : Controller
     {
         private readonly TaskManagerContext _context;
@@ -29,7 +28,7 @@ namespace TaskManager.Controllers
 
         private const int PageSize = 10;
 
-        // Modify the Index method to support pagination:
+        [Authorize(Roles = "ProjectManager, Administrator")]
         public async Task<IActionResult> Index(int page = 1)
         {
             var projects = await _context.Projects.Include(p => p.Manager).OrderBy(p => p.Title).Skip((page - 1) * PageSize).Take(PageSize).ToListAsync();
@@ -62,6 +61,7 @@ namespace TaskManager.Controllers
         }
 
         // GET: Projects/Create
+        [Authorize(Roles = "ProjectManager, Administrator")]
         public async Task<IActionResult> Create()
         {
             var isAdmin = await _userManager.IsInRoleAsync(await _userManager.GetUserAsync(User), "Administrator");
@@ -78,6 +78,7 @@ namespace TaskManager.Controllers
             return View();
         }
 
+        [Authorize(Roles = "ProjectManager, Administrator")]
         // POST: Projects/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -111,6 +112,7 @@ namespace TaskManager.Controllers
 
 
         // GET: Projects/Edit/5
+        [Authorize(Roles = "ProjectManager, Administrator")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -133,6 +135,7 @@ namespace TaskManager.Controllers
         }
 
         // POST: Projects/Edit/5
+        [Authorize(Roles = "ProjectManager, Administrator")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ProjectId,Title,ManagerId")] Project project)
@@ -172,6 +175,7 @@ namespace TaskManager.Controllers
         }
 
         // GET: Add Task
+        [Authorize(Roles = "ProjectManager, Administrator")]
         public async Task<IActionResult> AddTask(int? id)
         {
             if (id == null)
@@ -207,6 +211,7 @@ namespace TaskManager.Controllers
         }
 
         // POST: Add Task to Project
+        [Authorize(Roles = "ProjectManager, Administrator")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddTask(int? id, TaskVM taskVM)
@@ -280,6 +285,7 @@ namespace TaskManager.Controllers
 
 
         // POST: Projects/Delete/5
+        [Authorize(Roles = "ProjectManager, Administrator")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -298,6 +304,7 @@ namespace TaskManager.Controllers
             return RedirectToAction("Index", "Projects");
         }
 
+        [Authorize(Roles = "ProjectManager, Administrator, Developer")]
         // GET: Projects/Tasks/5
         public async Task<IActionResult> Tasks(int? projectId, int page = 1)
         {
@@ -308,21 +315,186 @@ namespace TaskManager.Controllers
             ViewData["ProjectId"] = projectId;
             ViewData["ProjectTitle"] = _context.Projects.Find(projectId).Title;
 
-            var tasks = await _context.Tasks.Include(t => t.TaskDevelopers).ThenInclude(td => td.Developer).Where(t => t.ProjectId == projectId).OrderBy(t => t.Title).Skip((page - 1) * PageSize).Take(PageSize).ToListAsync();
+            var isDeveloper = await _userManager.IsInRoleAsync(await _userManager.GetUserAsync(User), "Developer");
+            var userId = _userManager.GetUserId(User);
 
-            if (tasks == null)
+            IQueryable<Task> tasksQuery = _context.Tasks.Include(t => t.TaskDevelopers).ThenInclude(td => td.Developer).Where(t => t.ProjectId == projectId);
+
+            if (isDeveloper)
             {
-                return NotFound();
+                tasksQuery = tasksQuery.Where(t => t.TaskDevelopers.Any(td => td.DeveloperId == userId));
             }
 
+            var tasks = await tasksQuery.OrderBy(t => t.Title).Skip((page - 1) * PageSize).Take(PageSize).ToListAsync();
+
             ViewBag.CurrentPage = page;
-            ViewBag.TotalPages = (int)Math.Ceiling(_context.Tasks.Count(t => t.ProjectId == projectId) / (double)PageSize);
+            ViewBag.TotalPages = (int)Math.Ceiling(tasksQuery.Count() / (double)PageSize);
 
             return View(tasks);
         }
 
 
+        [Authorize(Roles = "ProjectManager, Administrator, Developer")]
+        public async Task<IActionResult> MyTasks(int page = 1)
+        {
+            var userId = _userManager.GetUserId(User);
+            var tasks = await _context.Tasks
+                                      .Include(t => t.TaskDevelopers)
+                                      .Where(t => t.TaskDevelopers.Any(td => td.DeveloperId == userId))
+                                      .OrderBy(t => t.Title)
+                                      .Skip((page - 1) * PageSize)
+                                      .Take(PageSize)
+                                      .ToListAsync();
 
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling(_context.Tasks.Count(t => t.TaskDevelopers.Any(td => td.DeveloperId == userId)) / (double)PageSize);
+
+            return View(tasks);
+        }
+
+        [Authorize(Roles = "ProjectManager, Administrator, Developer")]
+        public async Task<IActionResult> MyProjects()
+        {
+            var userId = _userManager.GetUserId(User);
+            var projects = await _context.Projects
+                                         .Include(p => p.ProjectDevelopers)
+                                         .Where(p => p.ProjectDevelopers.Any(pd => pd.UserId == userId))
+                                         .ToListAsync();
+
+            return View(projects);
+        }
+
+        // GET: Projects/EditTask/5
+        [Authorize(Roles = "ProjectManager, Administrator, Developer")]
+        public async Task<IActionResult> EditTask(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var task = await _context.Tasks
+                .Include(t => t.TaskDevelopers)
+                .ThenInclude(td => td.Developer)
+                .FirstOrDefaultAsync(t => t.TaskId == id.Value);
+
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            var userId = _userManager.GetUserId(User);
+            var user = await _userManager.FindByIdAsync(userId);
+            var isDeveloper = await _userManager.IsInRoleAsync(user, "Developer");
+
+            // Security check: Ensure developers can only edit their own tasks
+            if (isDeveloper && !task.TaskDevelopers.Any(td => td.DeveloperId == userId))
+            {
+                return Forbid();
+            }
+
+            var taskDevelopers = await _context.TaskDevelopers.Where(td => td.TaskId == id.Value).ToListAsync();
+            var developerIds = taskDevelopers.Select(td => td.DeveloperId).ToArray();
+
+            var taskVM = new TaskVM
+            {
+                Task = task,
+                SelectedDevIds = developerIds.ToList()
+            };
+
+            var project = await _context.Projects
+                .Include(p => p.ProjectDevelopers)
+                    .ThenInclude(pd => pd.User)
+                .FirstOrDefaultAsync(m => m.ProjectId == task.ProjectId);
+
+            // Extract distinct developers associated with the project
+            var devusers = project.ProjectDevelopers
+                .Select(pd => pd.User)
+                .DistinctBy(user => user.Id)
+                .OrderBy(user => user.Id)
+                .ToList();
+
+            taskVM.SelectDevs = devusers.Select(d => new SelectListItem { Text = d.FullName, Value = d.Id.ToString() }).ToList();
+
+            return View(taskVM);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "ProjectManager, Administrator, Developer")]
+        public async Task<IActionResult> EditTask(int id, TaskVM taskVM)
+        {
+            if (id != taskVM.Task.TaskId)
+            {
+                return NotFound();
+            }
+
+            var originalTask = await _context.Tasks.FindAsync(id);
+            if (originalTask == null)
+            {
+                return NotFound();
+            }
+
+            var userId = _userManager.GetUserId(User);
+            var user = await _userManager.FindByIdAsync(userId);
+            var isDeveloper = await _userManager.IsInRoleAsync(user, "Developer");
+
+            // Distinguish between developers and other roles
+            if (isDeveloper)
+            {
+                // Developers can only edit RequiredHours
+                originalTask.RequiredHours = taskVM.Task.RequiredHours;
+            }
+            else
+            {
+                // Project managers and admins can edit all fields
+                originalTask.Title = taskVM.Task.Title;
+                originalTask.RequiredHours = taskVM.Task.RequiredHours;
+                originalTask.Priority = taskVM.Task.Priority;
+                originalTask.IsCompleted = taskVM.Task.IsCompleted;
+
+                // Handle the many-to-many relationship with developers
+                var existingTaskDevelopers = _context.TaskDevelopers.Where(td => td.TaskId == id).ToList();
+                _context.TaskDevelopers.RemoveRange(existingTaskDevelopers);
+
+                foreach (var devId in taskVM.SelectedDevIds)
+                {
+                    _context.TaskDevelopers.Add(new TaskDeveloper
+                    {
+                        TaskId = id,
+                        DeveloperId = devId
+                    });
+                }
+            }
+
+            // No need to explicitly update the task because you're modifying the original tracked entity
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Tasks", new { projectId = originalTask.ProjectId });
+        }
+
+
+        // POST: Projects/MarkTaskCompleted/5
+        [Authorize(Roles = "ProjectManager, Administrator, Developer")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkTaskCompleted(int taskId)
+        {
+            var taskToMark = await _context.Tasks.FindAsync(taskId);
+
+            if (taskToMark == null)
+            {
+                return NotFound();
+            }
+
+            taskToMark.IsCompleted = true;
+
+            _context.Update(taskToMark);
+            await _context.SaveChangesAsync();
+
+            // Redirect to the project's tasks list after marking the task as completed.
+            return RedirectToAction("Tasks", new { projectId = taskToMark.ProjectId });
+        }
 
         private bool ProjectExists(int id)
         {

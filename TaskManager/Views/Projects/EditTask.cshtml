@@ -1,0 +1,71 @@
+﻿@model TaskManager.ViewModels.TaskVM.TaskVM
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+<h1>@ViewData["Title"]</h1>
+<hr />
+
+<div class="card">
+    <div class="card-header">
+        Edit Task
+    </div>
+    <div class="card-body">
+        <form asp-action="EditTask">
+            <input type="hidden" asp-for="Task.TaskId" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="Task.Title" class="control-label"></label>
+                <input asp-for="Task.Title" class="form-control" />
+                <span asp-validation-for="Task.Title" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Task.RequiredHours" class="control-label"></label>
+                <input asp-for="Task.RequiredHours" class="form-control" />
+                <span asp-validation-for="Task.RequiredHours" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Priority" class="control-label"></label>
+                <select asp-for="Priority" class="form-control" asp-items="@Model.PriorityItems"></select>
+                <span asp-validation-for="Priority" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="SelectedDevIds" class="control-label"></label>
+                <select asp-for="SelectedDevIds" class="form-control" asp-items="@Model.SelectDevs" multiple="multiple"></select>
+                <span asp-validation-for="SelectedDevIds" class="text-danger"></span>
+            </div>
+
+            <!-- Toggle Task Completion Status -->
+            <div class="form-group">
+                <label asp-for="Task.IsCompleted" class="control-label"></label>
+                <input type="checkbox" asp-for="Task.IsCompleted" /> Completed
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+    <div class="card-footer">
+        <a asp-action="Tasks" asp-route-projectId="@Model.Task.ProjectId" class="btn btn-secondary">Back to Task List</a>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('select').select2({
+                placeholder: function () {
+                    $(this).data('placeholder');
+                },
+                allowClear: true
+            });
+        });
+    </script>
+}

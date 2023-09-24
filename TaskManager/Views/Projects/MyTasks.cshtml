@@ -1,14 +1,14 @@
 ﻿@model IEnumerable<TaskManager.Models.Task>
 
 @{
-    ViewData["Title"] = "Tasks";
+    ViewBag.Title = "My Tasks";
     int currentPage = ViewBag.CurrentPage ?? 1;
     int totalPages = ViewBag.TotalPages ?? 1;
 }
 
 <div class="card">
     <div class="card-header">
-        Tasks for Project [@ViewData["ProjectTitle"]]
+        Tasks
     </div>
     <div class="card-body">
         <table class="table table-bordered">
@@ -26,12 +26,10 @@
                 {
                     <tr>
                         <td>@task.Title</td>
-                        <td>@string.Join(", ", task.TaskDevelopers.Select(td => td.Developer.Email))</td>
                         <td>@task.Priority</td>
                         <td>@task.RequiredHours</td>
                         <td>
                             <a asp-action="EditTask" asp-route-id="@task.TaskId" class="btn btn-warning btn-sm">Edit</a>
-                            <a asp-action="DeleteTask" asp-route-id="@task.TaskId" class="btn btn-danger btn-sm">Delete</a>
                             @if (!task.IsCompleted)
                             {
                                 <form asp-action="MarkTaskCompleted" method="post" style="display:inline;">
@@ -56,15 +54,14 @@
                     @for (int pageNum = 1; pageNum <= totalPages; pageNum++)
                     {
                         <li class="page-item @(pageNum == currentPage ? "active" : "")">
-                            <a class="page-link" asp-action="Tasks" asp-route-projectId="@ViewData["ProjectId"]" asp-route-page="@pageNum">@pageNum</a>
+                            <a class="page-link" asp-action="MyTasks" asp-route-page="@pageNum">@pageNum</a>
                         </li>
                     }
                 </ul>
             </nav>
         }
-
     </div>
     <div class="card-footer">
-        <a asp-action="Details" asp-route-id="@ViewData["ProjectId"]" class="btn btn-info">Back to Project Details</a>
+        <a asp-action="MyProjects" class="btn btn-info">Back to My Projects</a>
     </div>
 </div>

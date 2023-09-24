@@ -35,7 +35,8 @@
 
     <div class="form-group">
         <label for="DeveloperIds">Allocated Developers</label>
-        <select id="DeveloperIds" name="AllocatedDeveloperIds" multiple class="form-control" asp-items="@(ViewData["DeveloperId"] as SelectList)"></select>
+        <select id="DeveloperIds" name="AllocatedDeveloperIds" multiple class="form-control" asp-items="@(ViewData["DeveloperId"] as SelectList)" data-select2-multiple></select>
+
     </div>
 
     <button type="submit" class="btn btn-primary">Create</button>
@@ -63,7 +64,8 @@
 
                 $('#DeveloperIds').select2({
                     placeholder: "Select developers",
-                    allowClear: true
+                    allowClear: true,
+                    tags: true  // Allows user-defined tags (developers)
                 });
         });
     </script>

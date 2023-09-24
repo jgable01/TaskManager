@@ -1,0 +1,34 @@
+﻿@model IEnumerable<TaskManager.Models.Project>
+
+@{
+    ViewBag.Title = "My Projects";
+}
+
+<h1>@ViewBag.Title</h1>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Title)</th>
+            <th>@Html.DisplayNameFor(model => model.Manager)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var project in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => project.Title)</td>
+                <td>@Html.DisplayFor(modelItem => project.Manager.Email)</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@project.ProjectId" class="btn btn-info btn-sm">Details</a>
+                    <a asp-action="Tasks" asp-route-projectId="@project.ProjectId" class="btn btn-warning btn-sm">View Tasks</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="mb-3">
+    <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Back to dashboard</a>
+</div>

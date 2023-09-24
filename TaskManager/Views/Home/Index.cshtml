@@ -1,11 +1,12 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
-
-<div class="text-center">
+﻿<div class="text-center">
     <h1 class="display-4">Welcome to TaskManager</h1>
     <p>Your one-stop solution for managing tasks, projects, and teams effectively.</p>
     <p>
-        <a asp-controller="Projects" class="btn btn-primary">View Projects</a> 
+        <a asp-controller="Projects" class="btn btn-primary">View Projects</a>
+        @if (User.IsInRole("Developer"))
+        {
+            <a asp-controller="Projects" asp-action="MyTasks" class="btn btn-success">My Tasks</a>
+            <a asp-controller="Projects" asp-action="MyProjects" class="btn btn-info">My Projects</a>
+        }
     </p>
 </div>
