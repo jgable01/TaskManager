@@ -44,9 +44,5 @@ public class TaskManagerContext : IdentityDbContext<User>
             .WithMany(u => u.TaskDevelopers)
             .HasForeignKey(td => td.DeveloperId);
 
-
-
-
-
     }
 }
