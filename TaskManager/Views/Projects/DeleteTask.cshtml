@@ -1,0 +1,43 @@
+﻿@model TaskManager.Models.Task
+
+<h2>Delete Task</h2>
+
+<p>Are you sure you want to delete this task?</p>
+
+<table class="table">
+    <tr>
+        <th>Title</th>
+        <td>@Model.Title</td>
+    </tr>
+    <tr>
+        <th>Priority</th>
+        <td>@Model.Priority</td>
+    </tr>
+    <tr>
+        <th>Required Hours</th>
+        <td>@Model.RequiredHours</td>
+    </tr>
+    <tr>
+        <th>Developers</th>
+        <td>
+            @if (Model.TaskDevelopers != null && Model.TaskDevelopers.Any())
+            {
+                <ul>
+                    @foreach (var developer in Model.TaskDevelopers)
+                    {
+                        <li>@developer.Developer.FullName</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p>No developers assigned to this task.</p>
+            }
+        </td>
+    </tr>
+</table>
+
+<form asp-controller="Projects" asp-action="DeleteTaskConfirmed" asp-route-id="@Model.TaskId" method="post">
+    <input type="submit" value="Delete" class="btn btn-danger" />
+    <a asp-controller="Projects" asp-action="Tasks" asp-route-projectId="@Model.ProjectId" class="btn btn-secondary">Cancel</a>
+</form>

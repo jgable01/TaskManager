@@ -546,11 +546,15 @@ namespace TaskManager.Controllers
             {
                 _context.Tasks.Remove(task);
                 await _context.SaveChangesAsync();
+
+                // Redirect to the project's tasks list after deleting the task.
+                return RedirectToAction("Tasks", new { projectId = task.ProjectId });
             }
 
-            // Redirect to the project's tasks list after deleting the task.
-            return RedirectToAction("Tasks", new { projectId = task.ProjectId });
+            // Handle the case where the task was not found.
+            return NotFound();
         }
+
 
         private bool ProjectExists(int id)
         {
