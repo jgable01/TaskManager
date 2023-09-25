@@ -7,6 +7,8 @@
     var currentSortBy = ViewBag.SortBy as string;
     var currentExcludeCompleted = ViewBag.excludeCompleted;
     var currentExcludeAssigned = ViewBag.excludeAssigned;
+    var currentSortProjects = ViewBag.SortProjects;
+    var isDeveloper = User.IsInRole("Developer");
 }
 
 <div class="card">
@@ -15,9 +17,10 @@
     </div>
     <div class="card-body">
         <div class="mb-3">
-            <form asp-action="Tasks" asp-route-id='@ViewData["ProjectId"]' method="get">
-                <div class="form-group">
-                    <label for="sortBy">Sort By:</label>
+            <form asp-action="Tasks" asp-route-id='@ViewData["ProjectId"]' method="get" class="form-inline">
+
+                <div class="form-group mr-3">
+                    <label for="sortBy" class="mr-2">Sort By:</label>
                     <select name="sortBy" id="sortBy" class="form-control">
                         @if (currentSortBy == "Title")
                         {
@@ -47,17 +50,39 @@
                         }
                     </select>
                 </div>
-                <div class="form-check">
+
+                <div class="form-group mr-3">
+                    <label for="sortProjects" class="mr-2">Project:</label>
+                    <select name="sortProjects" id="sortProjects" class="form-control">
+                        <option value="All">All Projects</option>
+                        @foreach (var project in ViewBag.AllProjects)
+                        {
+                            if (currentSortProjects == project.ProjectId.ToString())
+                            {
+                                <option value="@project.ProjectId" selected>@project.Title</option>
+                            }
+                            else
+                            {
+                                <option value="@project.ProjectId">@project.Title</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="form-check mr-3">
                     <input type="checkbox" class="form-check-input" id="excludeCompleted" name="excludeCompleted" value="true" @(currentExcludeCompleted ? "checked" : "")>
                     <label class="form-check-label" for="excludeCompleted">Exclude Completed Tasks</label>
                 </div>
-                <div class="form-check">
+
+                <div class="form-check mr-3">
                     <input type="checkbox" class="form-check-input" id="excludeAssigned" name="excludeAssigned" value="true" @(currentExcludeAssigned ? "checked" : "")>
                     <label class="form-check-label" for="excludeAssigned">Exclude Assigned Tasks</label>
                 </div>
-                <button type="submit" class="btn btn-primary mt-2">Apply Filters</button>
+
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
             </form>
         </div>
+
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -96,6 +121,7 @@
                 }
             </tbody>
         </table>
+
         @if (totalPages > 1)
         {
             <nav aria-label="Page navigation">
@@ -111,6 +137,13 @@
         }
     </div>
     <div class="card-footer">
-        <a asp-action="Details" asp-route-id="@ViewData["ProjectId"]" class="btn btn-info">Back to Project Details</a>
+        @if (!isDeveloper)
+        {
+            <a asp-action="Details" asp-route-id="@ViewData["ProjectId"]" class="btn btn-info">Back to Project Details</a>
+        }
+        else
+        {
+            <a asp-action="MyProjects" class="btn btn-info">Back to my projects</a>
+        }
     </div>
 </div>

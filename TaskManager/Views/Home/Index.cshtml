@@ -4,6 +4,10 @@
         <p class="lead">Your one-stop solution for managing tasks, projects, and teams effectively.</p>
         <hr class="my-4 bg-light">
         <p>
+            @if (User.IsInRole("Administrator"))
+            {
+                <a asp-controller="Users" class="btn btn-success btn-lg mr-2">View Users</a>
+            }
             @if (User.IsInRole("ProjectManager") || User.IsInRole("Administrator"))
             {
                 <a asp-controller="Projects" class="btn btn-light btn-lg mr-2">View Projects</a>

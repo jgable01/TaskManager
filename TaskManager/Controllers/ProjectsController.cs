@@ -385,7 +385,7 @@ namespace TaskManager.Controllers
 
 
         [Authorize(Roles = "ProjectManager, Administrator, Developer")]
-        public async Task<IActionResult> Tasks(bool excludeCompleted, bool excludeAssigned, int? id, int page = 1, string sortBy = "Title")
+        public async Task<IActionResult> Tasks(bool excludeCompleted, bool excludeAssigned, int? id, int page = 1, string sortBy = "Title", int? sortProjects = null)
         {
             if (id == null)
             {
@@ -434,26 +434,50 @@ namespace TaskManager.Controllers
             ViewBag.excludeCompleted = excludeCompleted;
             ViewBag.excludeAssigned = excludeAssigned;
 
-            Console.WriteLine(ViewBag.ExcludeCompleted);  // For debugging purposes
-            Console.WriteLine(ViewBag.ExcludeAssigned);   // For debugging purposes
+            ViewBag.SortProjects = sortProjects;
+
+            // Ensure that all projects are sent to the view for the project dropdown
+            ViewBag.AllProjects = await _context.Projects.ToListAsync();
+
+            // If sortProjects has value, filter the tasks by the selected project
+            if (sortProjects.HasValue && sortProjects.Value > 0)
+            {
+                tasksQuery = tasksQuery.Where(t => t.ProjectId == sortProjects.Value);
+            }
 
             return View(tasks);
         }
 
         [Authorize(Roles = "ProjectManager, Administrator, Developer")]
-        public async Task<IActionResult> MyTasks(int page = 1, string sortBy = "Title", bool excludeCompleted = false)
+        public async Task<IActionResult> MyTasks(int page = 1, string sortBy = "Title", bool excludeCompleted = false, int? sortProjects = null)
         {
             var userId = _userManager.GetUserId(User);
 
             IQueryable<Task> tasksQuery = _context.Tasks
-                                              .Include(t => t.TaskDevelopers)
-                                              .Where(t => t.TaskDevelopers.Any(td => td.DeveloperId == userId));
+                                                  .Include(t => t.TaskDevelopers)
+                                                  .Where(t => t.TaskDevelopers.Any(td => td.DeveloperId == userId))
+                                                  .Include(t => t.Project)
+                                                  .Where(t => t.Project.ProjectDevelopers.Any(pd => pd.UserId == userId));
 
+            // Get all projects that have tasks assigned to the current developer
+            var allRelevantProjects = await _context.Projects
+                                                    .Where(p => p.Tasks.Any(t => t.TaskDevelopers.Any(td => td.DeveloperId == userId)))
+                                                    .ToListAsync();
+            ViewBag.AllProjects = allRelevantProjects;
+
+            // Apply the filters
             if (excludeCompleted)
             {
                 tasksQuery = tasksQuery.Where(t => !t.IsCompleted);
             }
 
+            // Filter by project (only show tasks from selected projects)
+            if (sortProjects.HasValue)
+            {
+                tasksQuery = tasksQuery.Where(t => t.ProjectId == sortProjects.Value);
+            }
+
+            // Sorting logic
             switch (sortBy)
             {
                 case "RequiredHours":
@@ -462,8 +486,11 @@ namespace TaskManager.Controllers
                 case "Priority":
                     tasksQuery = tasksQuery.OrderByDescending(t => t.Priority);
                     break;
+                case "Project":
+                    tasksQuery = tasksQuery.OrderBy(t => t.Project.Title);  // Sorting by Project's Title
+                    break;
                 default:
-                    tasksQuery = tasksQuery.OrderByDescending(t => t.Title);
+                    tasksQuery = tasksQuery.OrderBy(t => t.Title);
                     break;
             }
 
@@ -479,14 +506,16 @@ namespace TaskManager.Controllers
 
 
 
-        [Authorize(Roles = "ProjectManager, Administrator, Developer")]
+        [Authorize(Roles = "Developer")]
         public async Task<IActionResult> MyProjects()
         {
             var userId = _userManager.GetUserId(User);
-            var projects = await _context.Projects
-                                         .Include(p => p.ProjectDevelopers)
-                                         .Where(p => p.ProjectDevelopers.Any(pd => pd.UserId == userId))
-                                         .ToListAsync();
+            var projects = await _context.ProjectDevelopers
+                .Include(pd => pd.Project)
+                    .ThenInclude(p => p.Manager)
+                .Where(pd => pd.UserId == userId)
+                .Select(pd => pd.Project)
+                .ToListAsync();
 
             return View(projects);
         }

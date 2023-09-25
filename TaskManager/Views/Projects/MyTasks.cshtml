@@ -14,9 +14,10 @@
     </div>
     <div class="card-body">
         <div class="mb-3">
-            <form asp-action="MyTasks" method="get">
-                <div class="form-group">
-                    <label for="sortBy">Sort By:</label>
+            <form asp-action="MyTasks" method="get" class="form-inline">
+
+                <div class="form-group mr-3">
+                    <label for="sortBy" class="mr-2">Sort By:</label>
                     <select name="sortBy" id="sortBy" class="form-control">
                         @if (currentSortBy == "Title")
                         {
@@ -44,20 +45,50 @@
                         {
                             <option value="Priority">Priority</option>
                         }
+
+                        @if (currentSortBy == "Project")
+                        {
+                            <option value="Project" selected>Project</option>
+                        }
+                        else
+                        {
+                            <option value="Project">Project</option>
+                        }
                     </select>
                 </div>
-                <div class="form-check">
+
+                <div class="form-group mr-3">
+                    <label for="sortProjects" class="mr-2">Project:</label>
+                    <select name="sortProjects" id="sortProjects" class="form-control">
+                        <option value="All">All Projects</option>
+                        @foreach (var project in ViewBag.AllProjects)
+                        {
+                            if (ViewBag.SortProjects == project.ProjectId.ToString())
+                            {
+                                <option value="@project.ProjectId" selected>@project.Title</option>
+                            }
+                            else
+                            {
+                                <option value="@project.ProjectId">@project.Title</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="form-check mr-3">
                     <input type="checkbox" class="form-check-input" id="excludeCompleted" name="excludeCompleted" value="true" @(currentExcludeCompleted ? "checked" : "")>
                     <label class="form-check-label" for="excludeCompleted">Exclude Completed Tasks</label>
                 </div>
-                <button type="submit" class="btn btn-primary mt-2">Apply Filters</button>
+
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
             </form>
         </div>
+
         <table class="table table-bordered">
             <thead>
                 <tr>
                     <th>Title</th>
-                    <th>Developers</th>
+                    <th>Project</th>
                     <th>Priority</th>
                     <th>Required Hours</th>
                     <th>Actions</th>
@@ -68,6 +99,7 @@
                 {
                     <tr>
                         <td>@task.Title</td>
+                        <td><a asp-action="Details" asp-route-id="@task.ProjectId">@task.Project.Title</a></td>
                         <td>@task.Priority</td>
                         <td>@task.RequiredHours</td>
                         <td>
@@ -89,6 +121,7 @@
                 }
             </tbody>
         </table>
+
         @if (totalPages > 1)
         {
             <nav aria-label="Page navigation">
@@ -103,4 +136,8 @@
             </nav>
         }
     </div>
+</div>
+
+<div class="mb-3">
+    <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Back to dashboard</a>
 </div>

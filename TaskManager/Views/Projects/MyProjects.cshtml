@@ -1,16 +1,16 @@
 ﻿@model IEnumerable<TaskManager.Models.Project>
 
 @{
-    ViewBag.Title = "My Projects";
+    ViewData["Title"] = "My Projects";
 }
 
-<h1>@ViewBag.Title</h1>
+<h1>@ViewData["Title"]</h1>
 
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>@Html.DisplayNameFor(model => model.Title)</th>
-            <th>@Html.DisplayNameFor(model => model.Manager)</th>
+            <th>@Html.DisplayNameFor(model => model.First().Title)</th>
+            <th>@Html.DisplayNameFor(model => model.First().Manager)</th>
             <th>Actions</th>
         </tr>
     </thead>
@@ -18,8 +18,8 @@
         @foreach (var project in Model)
         {
             <tr>
-                <td>@Html.DisplayFor(modelItem => project.Title)</td>
-                <td>@Html.DisplayFor(modelItem => project.Manager.Email)</td>
+                <td>@project.Title</td>
+                <td>@project.Manager?.FullName</td>
                 <td>
                     <a asp-action="Details" asp-route-id="@project.ProjectId" class="btn btn-info btn-sm">Details</a>
                     <a asp-action="Tasks" asp-route-id="@project.ProjectId" class="btn btn-warning btn-sm">View Tasks</a>
