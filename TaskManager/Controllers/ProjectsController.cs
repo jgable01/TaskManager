@@ -337,7 +337,7 @@ namespace TaskManager.Controllers
 
 
         // GET: Projects/DeleteTask/5
-        [Authorize(Roles = "ProjectManager, Administrator, Developer")]
+        [Authorize(Roles = "ProjectManager, Administrator")]
         public async Task<IActionResult> DeleteTask(int? id)
         {
             if (id == null)
@@ -359,7 +359,7 @@ namespace TaskManager.Controllers
         }
 
         // POST: Tasks/Delete/5
-        [Authorize(Roles = "ProjectManager, Administrator, Developer")]
+        [Authorize(Roles = "ProjectManager, Administrator")]
         [HttpPost, ActionName("DeleteTask")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteTaskConfirmed(int id)
@@ -385,7 +385,7 @@ namespace TaskManager.Controllers
 
 
         [Authorize(Roles = "ProjectManager, Administrator, Developer")]
-        public async Task<IActionResult> Tasks(bool excludeCompleted, bool excludeAssigned, int? id, int page = 1, string sortBy = "Title", int? sortProjects = null)
+        public async Task<IActionResult> Tasks(bool excludeCompleted, bool excludeAssigned, int? id, int page = 1, string sortBy = "Title")
         {
             if (id == null)
             {
@@ -434,16 +434,9 @@ namespace TaskManager.Controllers
             ViewBag.excludeCompleted = excludeCompleted;
             ViewBag.excludeAssigned = excludeAssigned;
 
-            ViewBag.SortProjects = sortProjects;
 
             // Ensure that all projects are sent to the view for the project dropdown
             ViewBag.AllProjects = await _context.Projects.ToListAsync();
-
-            // If sortProjects has value, filter the tasks by the selected project
-            if (sortProjects.HasValue && sortProjects.Value > 0)
-            {
-                tasksQuery = tasksQuery.Where(t => t.ProjectId == sortProjects.Value);
-            }
 
             return View(tasks);
         }
@@ -641,6 +634,10 @@ namespace TaskManager.Controllers
             if (ModelState.IsValid)
             {
                 await _context.SaveChangesAsync();
+                if (isDeveloper)
+                {
+                    return RedirectToAction("MyTasks");
+                }
                 return RedirectToAction("Tasks", new { id = originalTask.ProjectId });
             }
             else
@@ -659,6 +656,8 @@ namespace TaskManager.Controllers
         public async Task<IActionResult> MarkTaskCompleted(int taskId)
         {
             var taskToMark = await _context.Tasks.FindAsync(taskId);
+            var userId = _userManager.GetUserId(User);
+            var isDeveloper = await _userManager.IsInRoleAsync(await _userManager.GetUserAsync(User), "Developer");
 
             if (taskToMark == null)
             {
@@ -671,6 +670,10 @@ namespace TaskManager.Controllers
             await _context.SaveChangesAsync();
 
             // Redirect to the project's tasks list after marking the task as completed.
+            if (isDeveloper)
+            {
+                return RedirectToAction("MyTasks");
+            }
             return RedirectToAction("Tasks", new { id = taskToMark.ProjectId });
         }
 

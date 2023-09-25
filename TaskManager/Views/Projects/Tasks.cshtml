@@ -7,7 +7,6 @@
     var currentSortBy = ViewBag.SortBy as string;
     var currentExcludeCompleted = ViewBag.excludeCompleted;
     var currentExcludeAssigned = ViewBag.excludeAssigned;
-    var currentSortProjects = ViewBag.SortProjects;
     var isDeveloper = User.IsInRole("Developer");
 }
 
@@ -51,24 +50,6 @@
                     </select>
                 </div>
 
-                <div class="form-group mr-3">
-                    <label for="sortProjects" class="mr-2">Project:</label>
-                    <select name="sortProjects" id="sortProjects" class="form-control">
-                        <option value="All">All Projects</option>
-                        @foreach (var project in ViewBag.AllProjects)
-                        {
-                            if (currentSortProjects == project.ProjectId.ToString())
-                            {
-                                <option value="@project.ProjectId" selected>@project.Title</option>
-                            }
-                            else
-                            {
-                                <option value="@project.ProjectId">@project.Title</option>
-                            }
-                        }
-                    </select>
-                </div>
-
                 <div class="form-check mr-3">
                     <input type="checkbox" class="form-check-input" id="excludeCompleted" name="excludeCompleted" value="true" @(currentExcludeCompleted ? "checked" : "")>
                     <label class="form-check-label" for="excludeCompleted">Exclude Completed Tasks</label>
@@ -103,7 +84,11 @@
                         <td>@task.RequiredHours</td>
                         <td>
                             <a asp-action="EditTask" asp-route-id="@task.TaskId" class="btn btn-warning btn-sm">Edit</a>
-                            <a asp-action="DeleteTask" asp-route-id="@task.TaskId" class="btn btn-danger btn-sm">Delete</a>
+                            @if (!isDeveloper)
+                            {
+                                <a asp-action="AssignTask" asp-route-id="@task.TaskId" class="btn btn-info btn-sm">Assign</a>
+                                <a asp-action="DeleteTask" asp-route-id="@task.TaskId" class="btn btn-danger btn-sm">Delete</a>
+                            }
                             @if (!task.IsCompleted)
                             {
                                 <form asp-action="MarkTaskCompleted" method="post" style="display:inline;">
@@ -140,6 +125,8 @@
         @if (!isDeveloper)
         {
             <a asp-action="Details" asp-route-id="@ViewData["ProjectId"]" class="btn btn-info">Back to Project Details</a>
+            <a asp-action="Index" class="btn btn-secondary">Back to Projects List</a>
+
         }
         else
         {
