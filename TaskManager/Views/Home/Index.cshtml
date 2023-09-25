@@ -1,12 +1,23 @@
-﻿<div class="text-center">
-    <h1 class="display-4">Welcome to TaskManager</h1>
-    <p>Your one-stop solution for managing tasks, projects, and teams effectively.</p>
-    <p>
-        <a asp-controller="Projects" class="btn btn-primary">View Projects</a>
-        @if (User.IsInRole("Developer"))
-        {
-            <a asp-controller="Projects" asp-action="MyTasks" class="btn btn-success">My Tasks</a>
-            <a asp-controller="Projects" asp-action="MyProjects" class="btn btn-info">My Projects</a>
-        }
-    </p>
+﻿<div class="jumbotron jumbotron-fluid bg-primary text-white">
+    <div class="container text-center">
+        <h1 class="display-4">Welcome to TaskManager</h1>
+        <p class="lead">Your one-stop solution for managing tasks, projects, and teams effectively.</p>
+        <hr class="my-4 bg-light">
+        <p>
+            @if (User.IsInRole("ProjectManager") || User.IsInRole("Administrator"))
+            {
+                <a asp-controller="Projects" class="btn btn-light btn-lg mr-2">View Projects</a>
+            }
+            @if (User.IsInRole("Developer"))
+            {
+                <a asp-controller="Projects" asp-action="MyTasks" class="btn btn-success btn-lg mr-2">My Tasks</a>
+                <a asp-controller="Projects" asp-action="MyProjects" class="btn btn-info btn-lg">My Projects</a>
+            }
+            @if (!User.Identity.IsAuthenticated)
+            {
+                <a href="/Identity/Account/Register" class="btn btn-light btn-lg mr-2">Register</a>
+                <a href="/Identity/Account/Login" class="btn btn-success btn-lg">Login</a>
+            }
+        </p>
+    </div>
 </div>

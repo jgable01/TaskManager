@@ -22,7 +22,7 @@
                 <td>@Html.DisplayFor(modelItem => project.Manager.Email)</td>
                 <td>
                     <a asp-action="Details" asp-route-id="@project.ProjectId" class="btn btn-info btn-sm">Details</a>
-                    <a asp-action="Tasks" asp-route-projectId="@project.ProjectId" class="btn btn-warning btn-sm">View Tasks</a>
+                    <a asp-action="Tasks" asp-route-id="@project.ProjectId" class="btn btn-warning btn-sm">View Tasks</a>
                 </td>
             </tr>
         }

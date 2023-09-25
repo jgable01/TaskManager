@@ -26,7 +26,7 @@
                 <td>@Html.DisplayFor(modelItem => item.Manager.Email)</td>
                 <td>
                     <a asp-action="Details" asp-route-id="@item.ProjectId" class="btn btn-info btn-sm">Details</a>
-                    <a asp-action="Tasks" asp-route-projectId="@item.ProjectId" class="btn btn-warning btn-sm">View Tasks</a>
+                    <a asp-action="Tasks" asp-route-id="@item.ProjectId" class="btn btn-warning btn-sm">View Tasks</a>
                     <a asp-action="AddTask" asp-route-id="@item.ProjectId" class="btn btn-success btn-sm">Add Task</a>
                     <a asp-action="Delete" asp-route-id="@item.ProjectId" class="btn btn-danger btn-sm">Delete</a>
                 </td>
@@ -48,4 +48,3 @@
         </ul>
     </nav>
 }
-

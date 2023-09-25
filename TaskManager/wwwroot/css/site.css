@@ -20,3 +20,19 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.jumbotron {
+    border-radius: 0; /* Makes the jumbotron edge flush with the page */
+    padding: 5rem 2rem; /* Extra padding for a more pronounced jumbotron */
+}
+
+    .jumbotron .btn-lg {
+        padding: 15px 25px; /* Slightly larger buttons for emphasis */
+        font-size: 1.1rem;
+    }
+
+    .jumbotron hr.bg-light {
+        border-top: 2px solid rgba(255,255,255,0.6); /* Slightly transparent white line */
+        width: 50%;
+        margin: 1.5rem auto;
+    }

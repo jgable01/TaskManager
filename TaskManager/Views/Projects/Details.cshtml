@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Project Details";
+    var isAdmin = User.IsInRole("Administrator");
+    var isProjectManager = User.IsInRole("ProjectManager");
 }
 
 <h1>Project: @Model.Title</h1>
@@ -35,7 +37,10 @@
 </div>
 
 <div class="mb-3">
-    <a asp-action="AllocateDevelopers" asp-route-id="@Model.ProjectId" class="btn btn-info">Allocate Developers</a>
-    <a asp-action="Tasks" asp-route-projectId="@Model.ProjectId" class="btn btn-warning">View Tasks</a>
+    @if (isAdmin || isProjectManager)
+    {
+        <a asp-action="AllocateDevelopers" asp-route-id="@Model.ProjectId" class="btn btn-info">Allocate Developers</a>
+    }
+    <a asp-action="Tasks" asp-route-id="@Model.ProjectId" class="btn btn-warning">View Tasks</a>
     <a asp-action="Index" class="btn btn-secondary">Back to Project List</a>
 </div>

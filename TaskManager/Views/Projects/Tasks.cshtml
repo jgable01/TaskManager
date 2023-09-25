@@ -4,6 +4,9 @@
     ViewData["Title"] = "Tasks";
     int currentPage = ViewBag.CurrentPage ?? 1;
     int totalPages = ViewBag.TotalPages ?? 1;
+    var currentSortBy = ViewBag.SortBy as string;
+    var currentExcludeCompleted = ViewBag.excludeCompleted;
+    var currentExcludeAssigned = ViewBag.excludeAssigned;
 }
 
 <div class="card">
@@ -11,6 +14,50 @@
         Tasks for Project [@ViewData["ProjectTitle"]]
     </div>
     <div class="card-body">
+        <div class="mb-3">
+            <form asp-action="Tasks" asp-route-id='@ViewData["ProjectId"]' method="get">
+                <div class="form-group">
+                    <label for="sortBy">Sort By:</label>
+                    <select name="sortBy" id="sortBy" class="form-control">
+                        @if (currentSortBy == "Title")
+                        {
+                            <option value="Title" selected>Title</option>
+                        }
+                        else
+                        {
+                            <option value="Title">Title</option>
+                        }
+
+                        @if (currentSortBy == "RequiredHours")
+                        {
+                            <option value="RequiredHours" selected>Required Hours</option>
+                        }
+                        else
+                        {
+                            <option value="RequiredHours">Required Hours</option>
+                        }
+
+                        @if (currentSortBy == "Priority")
+                        {
+                            <option value="Priority" selected>Priority</option>
+                        }
+                        else
+                        {
+                            <option value="Priority">Priority</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="excludeCompleted" name="excludeCompleted" value="true" @(currentExcludeCompleted ? "checked" : "")>
+                    <label class="form-check-label" for="excludeCompleted">Exclude Completed Tasks</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="excludeAssigned" name="excludeAssigned" value="true" @(currentExcludeAssigned ? "checked" : "")>
+                    <label class="form-check-label" for="excludeAssigned">Exclude Assigned Tasks</label>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Apply Filters</button>
+            </form>
+        </div>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -56,13 +103,12 @@
                     @for (int pageNum = 1; pageNum <= totalPages; pageNum++)
                     {
                         <li class="page-item @(pageNum == currentPage ? "active" : "")">
-                            <a class="page-link" asp-action="Tasks" asp-route-projectId="@ViewData["ProjectId"]" asp-route-page="@pageNum">@pageNum</a>
+                            <a class="page-link" asp-action="Tasks" asp-route-id="@ViewData["ProjectId"]" asp-route-page="@pageNum">@pageNum</a>
                         </li>
                     }
                 </ul>
             </nav>
         }
-
     </div>
     <div class="card-footer">
         <a asp-action="Details" asp-route-id="@ViewData["ProjectId"]" class="btn btn-info">Back to Project Details</a>

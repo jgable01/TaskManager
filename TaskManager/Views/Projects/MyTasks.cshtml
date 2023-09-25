@@ -1,16 +1,58 @@
 ﻿@model IEnumerable<TaskManager.Models.Task>
 
 @{
-    ViewBag.Title = "My Tasks";
+    ViewData["Title"] = "My Tasks";
     int currentPage = ViewBag.CurrentPage ?? 1;
     int totalPages = ViewBag.TotalPages ?? 1;
+    var currentSortBy = ViewBag.SortBy as string;
+    var currentExcludeCompleted = ViewBag.ExcludeCompleted;
 }
 
 <div class="card">
     <div class="card-header">
-        Tasks
+        My Tasks
     </div>
     <div class="card-body">
+        <div class="mb-3">
+            <form asp-action="MyTasks" method="get">
+                <div class="form-group">
+                    <label for="sortBy">Sort By:</label>
+                    <select name="sortBy" id="sortBy" class="form-control">
+                        @if (currentSortBy == "Title")
+                        {
+                            <option value="Title" selected>Title</option>
+                        }
+                        else
+                        {
+                            <option value="Title">Title</option>
+                        }
+
+                        @if (currentSortBy == "RequiredHours")
+                        {
+                            <option value="RequiredHours" selected>Required Hours</option>
+                        }
+                        else
+                        {
+                            <option value="RequiredHours">Required Hours</option>
+                        }
+
+                        @if (currentSortBy == "Priority")
+                        {
+                            <option value="Priority" selected>Priority</option>
+                        }
+                        else
+                        {
+                            <option value="Priority">Priority</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="excludeCompleted" name="excludeCompleted" value="true" @(currentExcludeCompleted ? "checked" : "")>
+                    <label class="form-check-label" for="excludeCompleted">Exclude Completed Tasks</label>
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Apply Filters</button>
+            </form>
+        </div>
         <table class="table table-bordered">
             <thead>
                 <tr>
@@ -60,8 +102,5 @@
                 </ul>
             </nav>
         }
-    </div>
-    <div class="card-footer">
-        <a asp-action="MyProjects" class="btn btn-info">Back to My Projects</a>
     </div>
 </div>

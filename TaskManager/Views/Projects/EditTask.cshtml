@@ -15,9 +15,9 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group">
-                <label asp-for="Task.Title" class="control-label"></label>
-                <input asp-for="Task.Title" class="form-control" />
-                <span asp-validation-for="Task.Title" class="text-danger"></span>
+                <input asp-for="Task.Title" class="form-control"
+                       readonly="@(User.IsInRole("Developer") ? "readonly" : null)"
+                       required="@(User.IsInRole("Developer") ? "false" : "true")" />
             </div>
 
             <div class="form-group">
@@ -27,21 +27,20 @@
             </div>
 
             <div class="form-group">
-                <label asp-for="Priority" class="control-label"></label>
-                <select asp-for="Priority" class="form-control" asp-items="@Model.PriorityItems"></select>
-                <span asp-validation-for="Priority" class="text-danger"></span>
+                <select asp-for="Task.Priority" class="form-control" asp-items="@Model.PriorityItems"
+                        disabled="@(User.IsInRole("Developer") ? "disabled" : null)"
+                        required="@(User.IsInRole("Developer") ? "false" : "true")"></select>
             </div>
 
             <div class="form-group">
-                <label asp-for="SelectedDevIds" class="control-label"></label>
-                <select asp-for="SelectedDevIds" class="form-control" asp-items="@Model.SelectDevs" multiple="multiple"></select>
-                <span asp-validation-for="SelectedDevIds" class="text-danger"></span>
+                <select asp-for="SelectedDevIds" class="form-control" asp-items="@Model.SelectDevs"
+                        multiple="multiple"
+                        disabled="@(User.IsInRole("Developer") ? "disabled" : null)"></select>
             </div>
 
             <!-- Toggle Task Completion Status -->
             <div class="form-group">
-                <label asp-for="Task.IsCompleted" class="control-label"></label>
-                <input type="checkbox" asp-for="Task.IsCompleted" /> Completed
+                <input type="checkbox" asp-for="Task.IsCompleted" />
             </div>
 
             <div class="form-group">
@@ -50,7 +49,7 @@
         </form>
     </div>
     <div class="card-footer">
-        <a asp-action="Tasks" asp-route-projectId="@Model.Task.ProjectId" class="btn btn-secondary">Back to Task List</a>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
     </div>
 </div>
 

@@ -21,7 +21,7 @@ namespace TaskManager.ViewModels.TaskVM
         [BindNever]
         public List<SelectListItem> SelectDevs { get; set; }
         [Display(Name = "Select Developers")]
-        public List<string> SelectedDevIds { get; set; } // New property for selected developer IDs
+        public List<string>? SelectedDevIds { get; set; } // New property for selected developer IDs
         public List<SelectListItem> PriorityItems { get; set; } = Enum.GetValues(typeof(Priority))
              .Cast<Priority>()
              .Select(p => new SelectListItem
