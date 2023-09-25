@@ -608,6 +608,7 @@ namespace TaskManager.Controllers
                 originalTask.Title = taskVM.Task.Title;
                 originalTask.RequiredHours = taskVM.Task.RequiredHours;
                 originalTask.Priority = taskVM.Task.Priority;
+                originalTask.IsCompleted = taskVM.Task.IsCompleted;
 
                 // Handle the many-to-many relationship with developers
                 var existingTaskDevelopers = _context.TaskDevelopers.Where(td => td.TaskId == id).ToList();
