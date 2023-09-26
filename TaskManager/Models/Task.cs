@@ -10,7 +10,8 @@ namespace TaskManager.Models
         public int TaskId { get; set; }
 
         [Required]
-        [StringLength(200)]
+        [MaxLength(200, ErrorMessage = "Task titles must be between 5-200 characters in length.")]
+        [MinLength(5, ErrorMessage = "Task titles must be between 5-200 characters in length.")]
         public string Title { get; set; }
 
         [Range(1, 999)]

@@ -9,8 +9,10 @@ namespace TaskManager.Models
         public int ProjectId { get; set; }
 
         [Required]
-        [StringLength(200)]
+        [MaxLength(200, ErrorMessage = "Project titles must be between 5-200 characters in length.")]
+        [MinLength(5, ErrorMessage = "Project titles must be between 5-200 characters in length.")]
         public string Title { get; set; }
+
         [Display(Name = "Manager")]
         public string ManagerId { get; set; }
         public virtual User? Manager { get; set; }
