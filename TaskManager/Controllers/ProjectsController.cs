@@ -759,9 +759,6 @@ namespace TaskManager.Controllers
             return RedirectToAction(nameof(Details), new { id = vm.ProjectId });
         }
 
-
-
-
         private bool ProjectExists(int id)
         {
             return (_context.Projects?.Any(e => e.ProjectId == id)).GetValueOrDefault();

@@ -86,7 +86,6 @@
                             <a asp-action="EditTask" asp-route-id="@task.TaskId" class="btn btn-warning btn-sm">Edit</a>
                             @if (!isDeveloper)
                             {
-                                <a asp-action="AssignTask" asp-route-id="@task.TaskId" class="btn btn-info btn-sm">Assign</a>
                                 <a asp-action="DeleteTask" asp-route-id="@task.TaskId" class="btn btn-danger btn-sm">Delete</a>
                             }
                             @if (!task.IsCompleted)
