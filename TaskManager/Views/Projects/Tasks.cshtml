@@ -124,13 +124,13 @@
     <div class="card-footer">
         @if (!isDeveloper)
         {
-            <a asp-action="Details" asp-route-id="@ViewData["ProjectId"]" class="btn btn-info">Back to Project Details</a>
             <a asp-action="Index" class="btn btn-secondary">Back to Projects List</a>
+            <a asp-action="Details" asp-route-id="@ViewData["ProjectId"]" class="btn btn-info">Project Details</a>
 
         }
         else
         {
-            <a asp-action="MyProjects" class="btn btn-info">Back to my projects</a>
+            <a asp-action="MyProjects" class="btn btn-secondary">Back to My Projects</a>
         }
     </div>
 </div>

@@ -508,6 +508,7 @@ namespace TaskManager.Controllers
                     .ThenInclude(p => p.Manager)
                 .Where(pd => pd.UserId == userId)
                 .Select(pd => pd.Project)
+                .OrderBy(p => p.Title)
                 .ToListAsync();
 
             return View(projects);

@@ -40,13 +40,13 @@
 <div class="mb-3">
     @if (isAdmin || isProjectManager)
     {
-        <a asp-action="AllocateDevelopers" asp-route-id="@Model.ProjectId" class="btn btn-info">Allocate Developers</a>
         <a asp-action="Index" class="btn btn-secondary">Back to Project List</a>
+        <a asp-action="AllocateDevelopers" asp-route-id="@Model.ProjectId" class="btn btn-info">Allocate Developers</a>
         <a asp-action="Tasks" asp-route-id="@Model.ProjectId" class="btn btn-warning">View Tasks</a>
     }
     @if (isDeveloper)
     {
-        <a asp-action="MyTasks" class="btn btn-warning">View My Tasks</a>
         <a asp-action="MyProjects" class="btn btn-secondary">Back to My Projects</a>
+        <a asp-action="MyTasks" class="btn btn-warning">My Tasks</a>
     }
 </div>
