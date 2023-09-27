@@ -1,9 +1,8 @@
 ﻿@model TaskManager.Models.Project
 @using Microsoft.AspNetCore.Identity
 @using TaskManager.Areas.Identity.Data
-@inject UserManager<User> UserManager 
+@inject UserManager<User> UserManager
 <!--Used userManager for auto-assinging project manager-->
-
 @{
     var isAdmin = Context.User.IsInRole("Administrator");
     var userId = UserManager.GetUserId(User);
